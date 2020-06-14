@@ -8,6 +8,7 @@
 `:../dxt3.bmp 1: .img.imgToBmp .img.ddsToImg[read1`:testImg/dxt3.dds]
 `:../dxt5.bmp 1: .img.imgToBmp .img.ddsToImg[read1`:testImg/dxt5.dds]
 `:../dxt5_2.bmp 1: .img.imgToBmp .img.ddsToImg[read1`:testImg/dxt5_2.dds]
+`:../tga_example.bmp 1: .img.imgToBmp .img.tgaToImg[read1`:testImg/example.tga]
 if[not (.img.bmpToImg read1`:testImg/simple.bmp)~(2130706687 2130771712 2147418112 0Wi;-16776961 -16711936 -65536 -1i); '"failed"];
 if[not (.img.bmpToImg read1`:testImg/simple24.bmp)~(8421631 8454016 16744576 16777215i;255 65280 16711680 16777215i); '"failed"];
 //.img.bmpToImg read1`:../my2gn.bmp

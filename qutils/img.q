@@ -4,4 +4,5 @@
     .img.imgToBmp:.img.priv.lib 2:(`k_imgToBmp;1);
     .img.ddsToImg:.img.priv.lib 2:(`k_ddsToImg;1);
     .img.bmpToImg:.img.priv.lib 2:(`k_bmpToImg;1);
+    .img.tgaToImg:.img.priv.lib 2:(`k_tgaToImg;1);
     }[]

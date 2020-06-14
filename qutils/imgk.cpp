@@ -5,6 +5,10 @@
 #include <vector>
 //#include <iostream>
 
+typedef uint16_t UH;
+typedef uint32_t UI;
+typedef uint64_t UJ;
+
 extern "C" {
 
 K kerror(const char *err) {
@@ -91,6 +95,12 @@ K k_bmpToImg(K src) {
             p += (-(3*width))%4;
         }
     }
+    return result;
+}
+
+K krect(size_t width, size_t height) {
+    K result = ktn(0, height);
+    for (int i=0; i<height; ++i) kK(result)[i] = ktn(6, width);
     return result;
 }
 
@@ -271,6 +281,31 @@ K k_ddsToImg(K src) {
                 }
                 p += 8;
             }
+    }
+    return result;
+}
+
+K k_tgaToImg(K src) {
+    if (src->t != 4) return kerror("tgaToImg: src must be byte list");
+    G *p = kG(src);
+    G idLength = *p++;
+    if (idLength != 0) return kerror("tgaToImg: image with ID not supported");
+    G colorMapType = *p++;
+    if (colorMapType != 0) return kerror("tgaToImg: unsupported colorMapType");
+    G imageType = *p++;
+    if(imageType != 2) return kerror("tgaToImg: unsupported imageType");
+    p += 5; //colorMapSpec
+    p += 4; //xOrigin, yOrigin
+    UH width = *(UH*)p; p+=2;
+    UH height = *(UH*)p; p+=2;
+    G pixelDepth = *p++;
+    if (pixelDepth != 32) return kerror("tgaToImg: unsupported pixelDepth");
+    G imgDescr = *p++;
+    if (imgDescr != 8) return kerror("tgaToImg: unsupported imgDescr");
+    K result = krect(width,height);
+    for (int i=0; i<height; ++i) {
+        memcpy(kI(kK(result)[height-1-i]), p, width*4);
+        p += width*4;
     }
     return result;
 }
