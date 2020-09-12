@@ -8,7 +8,7 @@
     .qutils.splitToLayers:.qutils.priv.lib 2:(`splitToLayers;1);
     .qutils.filetimeToTs:.qutils.priv.lib 2:(`filetimeToTsK;1);
     .qutils.xorDecode:.qutils.priv.lib 2:(`xorDecode;2);
-    .qutiks.utf8toANSI:.qutils.priv.lib 2:(`utf8toANSI;1);
+    .qutils.utf8toANSI:.qutils.priv.lib 2:(`utf8toANSI;1);
     }[]
 
 .qutils.getFileTimeTs:{[path]
