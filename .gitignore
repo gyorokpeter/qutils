@@ -1,0 +1,4 @@
+*.dll
+libq.a
+q.def
+config.cmd
