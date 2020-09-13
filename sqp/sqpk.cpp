@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <zlib.h>
 #include <vector>
-#include "../sqp/pklib.h"
+#include "pklib.h"
 
 namespace {
 int32_t sqpNameKey[3*256] = {
