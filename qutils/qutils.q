@@ -13,3 +13,8 @@
 
 .qutils.getFileTimeTs:{[path]
     .qutils.filetimeToTs .qutils.getFileTime path};
+
+base64decode:{
+    pad:sum x="=";
+    c:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    neg[pad]_`char$0b sv/:8 cut raze -6#/:0b vs/:c?x};
