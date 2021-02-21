@@ -29,4 +29,5 @@ longstring:{
         :"([]",(";"sv string[cols x],'":",/:.z.s each value flip x),")"
     ];
     if[t=99h; :.z.s[key x],"!",.z.s[value x]];
+    if[t=104h; v:value x; :.z.s[first v],"[",(";"sv .z.s each 1_v),"]"];
     '"nyi type ",string t};
