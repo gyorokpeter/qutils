@@ -19,4 +19,4 @@ base64decode:{
     c:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     neg[pad]_`char$0b sv/:8 cut raze -6#/:0b vs/:c?x};
 
-.qutils.thousandsSep:{s:string x;c:count[s];" "sv(0,(1+(c-1) mod 3)+3*til (c-1)div 3)cut s};
+.qutils.thousandsSep:{if[null x;:""];s:string x;c:count[s];" "sv(0,(1+(c-1) mod 3)+3*til (c-1)div 3)cut s};
