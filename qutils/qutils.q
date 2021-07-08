@@ -20,3 +20,13 @@ base64decode:{
     neg[pad]_`char$0b sv/:8 cut raze -6#/:0b vs/:c?x};
 
 .qutils.thousandsSep:{if[null x;:""];s:string x;c:count[s];" "sv(0,(1+(c-1) mod 3)+3*til (c-1)div 3)cut s};
+
+.qutils.openWebSocket:{[url]
+    if[not url like "ws://*"; '"url must start with \"ws://\""];
+    p:"/"vs url;
+    hostport:p[2];
+    connhandle:`$":","/"sv 3#p;
+    resource:"/","/"sv 3_p;
+    r:connhandle"GET ",resource," HTTP/1.1\r\nHost: ",hostport,"\r\n\r\n";
+    if[null first r; 'last r];
+    first r};
