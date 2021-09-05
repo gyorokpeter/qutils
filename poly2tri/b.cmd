@@ -2,7 +2,7 @@ cls
 @call config.cmd
 @if not exist ..\libq.a (
     echo create ..\libq.a as per https://code.kx.com/q/interfaces/using-c-functions/#windows-mingw-64
-    exit 1
+    exit /b 1
 )
 g++ -o ../poly2tri2.dll -shared poly2tri_k.cpp ^
     %POLY2TRI_PATH%/poly2tri/common/shapes.cc ^

@@ -1,0 +1,2 @@
+set KX_KDB_PATH=D:/path/to/kxSystems/kdb
+set LZ4_PATH=D:/path/to/lz4/lib
