@@ -107,7 +107,8 @@ uint64_t winGetFileTimeImpl(const char *fileName, uint32_t length) {
                              );
     }
     if(fh == INVALID_HANDLE_VALUE) {
-        cout << fn << ": " << niceGetLastError() << endl;
+        std::string err = niceGetLastError();
+        throw std::runtime_error(err);
     }
     GetFileTime(fh, 0, 0, &ft);
     CloseHandle(fh);

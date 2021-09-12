@@ -83,7 +83,11 @@ K winGetSystemTimeAsFileTime(K unused) {
 
 K winGetFileTime(K fn) {
     if (fn->t != 10) return kerror("winGetFileTime expects string");
-    return kj(winGetFileTimeImpl((char*)kC(fn),fn->n));
+    try {
+        return kj(winGetFileTimeImpl((char*)kC(fn),fn->n));
+    } catch(const std::exception &e) {
+        return kerror(e.what());
+    }
 }
 
 K winSetFileTime(K fn, K time) {
