@@ -20,6 +20,15 @@
     .timer.reschedule[];
     id};
 
+.timer.addAlignedPeriodicTimer:{[func;period]
+    period:.timer.convertPeriod[period];
+    if[period<=00:00:00.001;'"period too short"];
+    id:.timer.sq+:1;
+    start:(period xbar .z.P)+period;
+    .timer.list[id]:`func`when`period!(func;start;period);
+    .timer.reschedule[];
+    id};
+
 .timer.addRelativeTimer:{[func;delay]
     if[-12h=type delay; '"*relative* timer doesn't accept a timestamp"];
     delay:.timer.convertPeriod[delay];
