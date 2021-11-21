@@ -12,7 +12,7 @@ longstring:{
     if[t=-18h; :string[x],"v"];
     if[t in 1 5 6 7 12 16 19h;
         :$[0=count x;"`",string[key x],"$()";
-           1=count x;"enlist[",string[first x],.Q.t[t],"]";(" "sv {$[null x;"0N";string[x]]}each x),.Q.t[t]];
+           1=count x;"enlist[",$[null first x;"0N";string first x],.Q.t[t],"]";(" "sv {$[null x;"0N";string[x]]}each x),.Q.t[t]];
     ];
     if[t in 8 9h;
         :$[1=count x;"enlist[",string[first x],.Q.t[t],"]";(" "sv {$[null x;"0n";string[x]]}each x),.Q.t[t]];
@@ -31,3 +31,9 @@ longstring:{
     if[t=99h; :.z.s[key x],"!",.z.s[value x]];
     if[t=104h; v:value x; :.z.s[first v],"[",(";"sv .z.s each 1_v),"]"];
     '"nyi type ",string t};
+
+longstringTest:{
+    if[not longstring[enlist 0Ni]~"enlist[0Ni]"; {'x}"failed"];
+    if[not longstring[([]a:enlist 0Ni)]~"([]a:enlist[0Ni])"; {'x}"failed"];
+    };
+//longstringTest[];
