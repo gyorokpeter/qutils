@@ -14,10 +14,8 @@
 .qutils.getFileTimeTs:{[path]
     .qutils.filetimeToTs .qutils.getFileTime path};
 
-base64decode:{
-    pad:sum x="=";
-    c:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    neg[pad]_`char$0b sv/:8 cut raze -6#/:0b vs/:c?x};
+try2:{-105!(x;y;{[z;e;bt] -1 .Q.sbt bt; z[e]}[z])};
+try3:{-105!(x;y;{[z;e;bt]z[e;bt]}[z])};
 
 .qutils.thousandsSep:{if[null x;:""];s:string x;c:count[s];" "sv(0,(1+(c-1) mod 3)+3*til (c-1)div 3)cut s};
 

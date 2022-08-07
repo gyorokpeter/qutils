@@ -52,8 +52,6 @@
     id};
 
 .timer.removeTimer:{[id]id0:id;delete from `.timer.list where id=id0;.timer.reschedule[];};
-try2:{-105!(x;y;{[z;e;bt] -1 .Q.sbt bt; z[e]}[z])};
-try3:{-105!(x;y;{[z;e;bt]z[e;bt]}[z])};
 .timer.errorHandler:{[e;bt] -1"timer error: ",e; -1 .Q.sbt bt}
 .z.ts:{
     while[0<count toRun:exec id from .timer.list where when<=.z.P;
