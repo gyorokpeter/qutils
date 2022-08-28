@@ -20,7 +20,7 @@ try3:{-105!(x;y;{[z;e;bt]z[e;bt]}[z])};
 .qutils.thousandsSep:{if[null x;:""];s:string x;c:count[s];" "sv(0,(1+(c-1) mod 3)+3*til (c-1)div 3)cut s};
 
 .qutils.openWebSocket:{[url]
-    if[not url like "ws://*"; '"url must start with \"ws://\""];
+    if[not any url like/:("ws://*";"wss://*"); '"url must start with \"ws://\""];
     p:"/"vs url;
     hostport:p[2];
     connhandle:`$":","/"sv 3#p;
