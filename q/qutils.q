@@ -28,3 +28,9 @@ try3:{-105!(x;y;{[z;e;bt]z[e;bt]}[z])};
     r:connhandle"GET ",resource," HTTP/1.1\r\nHost: ",hostport,"\r\n\r\n";
     if[null first r; 'last r];
     first r};
+
+//key value e.g. kv[`a;1;`b;2]
+.qutils.kv0:{(!). flip 2 cut x};
+.qutils.listarg:{(')[x;enlist]};
+kv:.qutils.listarg[.qutils.kv0];
+.qutils.kvarg:{(')[x;kv]};
