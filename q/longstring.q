@@ -20,7 +20,7 @@ longstring:{
     ];
     if[t=4h; :"0x",raze string x];
     if[t=-10h; :.Q.s1[x]];
-    if[t=10h; :"\"",ssr[x;"\"";"\\\""],"\""];
+    if[t=10h; :"\"",ssr/[x;("\\";"\"");("\\\\";"\\\"")],"\""];
     if[t=11h;
         if[0=count x; :"(`$())"];
         :$[1=count x;"enlist[",.z.s[first x],"]";raze"`",/:string[x]]
@@ -30,6 +30,7 @@ longstring:{
         :"([]",(";"sv string[cols x],'":",/:.z.s each value flip x),")"
     ];
     if[t=99h; :.z.s[key x],"!",.z.s[value x]];
+    if[t=103h; :string x];
     if[t=104h; v:value x; :.z.s[first v],"[",(";"sv .z.s each 1_v),"]"];
     '"nyi type ",string t};
 
@@ -37,5 +38,7 @@ longstringTest:{
     if[not longstring[0101b]~"0101b"; {'x}"failed"];
     if[not longstring[enlist 0Ni]~"enlist[0Ni]"; {'x}"failed"];
     if[not longstring[([]a:enlist 0Ni)]~"([]a:enlist[0Ni])"; {'x}"failed"];
+    if[not longstring[/]~enlist"/"; {'x}"failed"];
+    if[not longstring["\\w"]~"\"\\\\w\""; {'x}"failed"];
     };
 //longstringTest[];
