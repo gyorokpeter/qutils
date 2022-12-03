@@ -1,3 +1,26 @@
+///
+// Utilities for converting k code to q
+//
+// The core function is `k2q`. You can pass in any function in the .Q namespace and it will return
+// equivalent code in q.
+// Example: k2q .Q.l
+// The main goal is to produce functionally identical code, not beautiful code.
+// Concessions are made on some points:
+// * The composition operator (') sometimes can be used without parentheses in q code, but not
+//   always as it tends to parse as the each iterator. Determining if the parentheses can be
+//   omitted would require too much context for this simple implementation, so the composition
+//   operator is always output with parentheses. Since k syntax allows a condensed way of writing
+//   compositions that can't be done in q but will nevertheless appear in the parse trees of k
+//   expressions, this means many functions will have lots of this operator which is hard to read.
+// * /: \: are an ugly design choice to be an iterator syntactically but also have the ability to
+//   act as a function, which also affects the way they are parsed. Therefore there are special
+//   cases with heuristics to replace them with `sv` and `vs` that might not catch all scenarios.
+// * The <: operator in k can both act as `iasc` and `hopen`. In q `hopen` is a keyword while
+//   `iasc` is a wrapper around <: with type checking. But due to its prominence, k2q will rewrite
+//   <: as `iasc`. There was no usage of <: as `hopen`. However the same is not done with >: since
+//   `hclose` is not a built-in keyword but an alias for >: which has higher priority for being
+//   picked up.
+
 .k2q.join:{[left;right]
     needSpace:0b;
     break:.Q.an,".`";
