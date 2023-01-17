@@ -17,9 +17,9 @@
 //   cases with heuristics to replace them with `sv` and `vs` that might not catch all scenarios.
 // * The <: operator in k can both act as `iasc` and `hopen`. In q `hopen` is a keyword while
 //   `iasc` is a wrapper around <: with type checking. But due to its prominence, k2q will rewrite
-//   <: as `iasc`. There was no usage of <: as `hopen`. However the same is not done with >: since
-//   `hclose` is not a built-in keyword but an alias for >: which has higher priority for being
-//   picked up.
+//   <: as `iasc`. There was no usage of <: as `hopen` in `.Q`. However the same is not done with
+//   >: since `hclose` is not a built-in keyword but an alias for >: which has higher priority for
+//   being picked up.
 
 .k2q.join:{[left;right]
     needSpace:0b;
