@@ -21,6 +21,8 @@
 //   >: since `hclose` is not a built-in keyword but an alias for >: which has higher priority for
 //   being picked up.
 
+.finos.dep.include"longstring.q";
+
 .k2q.join:{[left;right]
     needSpace:0b;
     break:.Q.an,".`";
@@ -178,7 +180,7 @@ k2q:{
     ];
     x};
 
-.k2q.unittest:{
+.k2q.unittest1:{
     if[not .k2q.unparse[1 2 3]~"1 2 3j"; {'x}"failed"];
     if[not .k2q.unparse[(";";1;2)]~"1j;2j"; {'x}"failed"];
     if[not .k2q.unparse[(|;`x;-1h)]~"x or -1h"; {'x}"failed"];
@@ -229,6 +231,10 @@ k2q:{
     if[not .k2q.unparse[(,:;`x)]~"enlist x"; {'x}"failed"];
     if[not .k2q.unparse[(`f;::)]~"f[]"; {'x}"failed"];
     if[not .k2q.unparse[parse"if[x;y]"]~"if[x;y]"; {'x}"failed"];
+    };
+
+.k2q.unittest:{
+    .k2q.unittest1[];
     if[not .k2q.unparse[("'";enlist `type)]~"'`type"; {'x}"failed"];
     if[not .k2q.unparse[("'";"type")]~"'\"type\""; {'x}"failed"];
     if[not .k2q.unparse[parse"f[;]"]~"f[;]"; {'x}"failed"];
