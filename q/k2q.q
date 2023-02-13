@@ -39,10 +39,12 @@
     if[not 101h=type x; :0b];
     0xff=last first -8!/:enlist x};
 
+.k2q.resolveVarName:{$[x like ".q.*";3_;::]string x};
+
 .k2q.unparse0:{[mode;x]
     if[";"~first x; :";"sv .k2q.unparse0[`free]each 1_x];
     t:type x;
-    if[-11h=t; :string x];
+    if[-11h=t; :.k2q.resolveVarName x];
     if[11h=t;
         if[1=count x; :longstring first x];
     ];
@@ -132,6 +134,10 @@
             if[103h=tffx; infix:1b];
         ];
         if[tfx in 101 102h; infix:1b];
+        if[tfx=-11h; if[x[0] like ".q.*";
+            x[0]:value x[0];
+            tfx:type first x;
+        ]];
         if[100h=tfx;
             if[first[x] in value .q;
                 infix:2=count value[first x][1];
@@ -279,6 +285,8 @@ k2q:{
     if[not k2q[':[value"k){x}"]]~(':)[{[x]x}];fail[]];
     if[not k2q[/:[value"k){x}"]]~(/:)[{[x]x}];fail[]];
     if[not k2q[\:[value"k){x}"]]~(\:)[{[x]x}];fail[]];
+    if[not k2q[value"k){.q.set[`.q.abs;.q.abs]}"]~{[x]`.q.abs set abs};fail[]];
+    if[not k2q[value"k){.q.count[x]}"]~{[x]count x};fail[]];
     };
 
 //.k2q.unittest[];
