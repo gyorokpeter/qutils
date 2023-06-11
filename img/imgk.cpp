@@ -111,7 +111,9 @@ K k_ddsToImg(K src) {
     int height = *(int*)(p+12);
     int flags = *(int*)(p+80);
     int format = 0;
-    if (flags == 0x41) format = 1;  //RGBA
+    bool useAlpha = false;
+    if (flags == 0x40) { format = 1; useAlpha = false; }    //RGB
+    else if (flags == 0x41) { format = 1; useAlpha = true; }    //RGBA
     else if (flags == 4) {
         int fourcc = *(int*)(p+84);
         if (fourcc == 0x35545844) format = 2;   //DXT5
@@ -122,9 +124,17 @@ K k_ddsToImg(K src) {
     K result = ktn(0, height);
     for (int i=0; i<height; ++i) kK(result)[i] = ktn(6, width);
     p += 128;
-    if (format == 1) { //RGBA
+    if (format == 1 && useAlpha) { //RGBA
         for (int i=0; i<height; ++i) {
             memcpy(kI(kK(result)[i]), p, width*4);
+            p += width*4;
+        }
+    } else if (format == 1 && !useAlpha) { //RGB
+        for (int i=0; i<height; ++i) {
+            memcpy(kI(kK(result)[i]), p, width*4);
+            for (int j=0; j<width; ++j) {
+                kI(kK(result)[i])[j] = kI(kK(result)[i])[j] | 0xff000000;   //fix alpha channel
+            }
             p += width*4;
         }
     } else if (format == 2) {

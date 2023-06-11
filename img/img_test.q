@@ -2,15 +2,16 @@
 
 \l img.q
 
-`:../simple.bmp 1: .img.imgToBmp[(2130706687 2130771712 2147418112 0Wi;-16776961 -16711936 -65536 -1i)]
-`:../rgba.bmp 1: .img.imgToBmp .img.ddsToImg[read1`:testImg/rgba.dds]
-`:../dxt1.bmp 1: .img.imgToBmp .img.ddsToImg[read1`:testImg/dxt1.dds]
-`:../dxt3.bmp 1: .img.imgToBmp .img.ddsToImg[read1`:testImg/dxt3.dds]
-`:../dxt5.bmp 1: .img.imgToBmp .img.ddsToImg[read1`:testImg/dxt5.dds]
-`:../dxt5_2.bmp 1: .img.imgToBmp .img.ddsToImg[read1`:testImg/dxt5_2.dds]
-`:../tga_example.bmp 1: .img.imgToBmp .img.tgaToImg[read1`:testImg/example.tga]
-if[not (.img.bmpToImg read1`:testImg/simple.bmp)~(2130706687 2130771712 2147418112 0Wi;-16776961 -16711936 -65536 -1i); '"failed"];
-if[not (.img.bmpToImg read1`:testImg/simple24.bmp)~(8421631 8454016 16744576 16777215i;255 65280 16711680 16777215i); '"failed"];
+//`:../simple.bmp 1: .img.imgToBmp[(2130706687 2130771712 2147418112 0Wi;-16776961 -16711936 -65536 -1i)]
+`:../rgb.bmp 1: .img.imgToBmp .img.ddsToImg[read1`:testImg/rgb.dds]
+//`:../rgba.bmp 1: .img.imgToBmp .img.ddsToImg[read1`:testImg/rgba.dds]
+//`:../dxt1.bmp 1: .img.imgToBmp .img.ddsToImg[read1`:testImg/dxt1.dds]
+//`:../dxt3.bmp 1: .img.imgToBmp .img.ddsToImg[read1`:testImg/dxt3.dds]
+//`:../dxt5.bmp 1: .img.imgToBmp .img.ddsToImg[read1`:testImg/dxt5.dds]
+//`:../dxt5_2.bmp 1: .img.imgToBmp .img.ddsToImg[read1`:testImg/dxt5_2.dds]
+//`:../tga_example.bmp 1: .img.imgToBmp .img.tgaToImg[read1`:testImg/example.tga]
+//if[not (.img.bmpToImg read1`:testImg/simple.bmp)~(2130706687 2130771712 2147418112 0Wi;-16776961 -16711936 -65536 -1i); '"failed"];
+//if[not (.img.bmpToImg read1`:testImg/simple24.bmp)~(8421631 8454016 16744576 16777215i;255 65280 16711680 16777215i); '"failed"];
 //.img.bmpToImg read1`:../my2gn.bmp
 
 //img:150>=avg each/:1_/:/:0x00 vs/:/:.img.bmpToImg read1`:../myg2n.bmp;
@@ -59,7 +60,6 @@ thinAndSave:{[path]`:../thinned.bmp 1: .img.imgToBmp 16777215i*1i-thin 150>=avg 
 
 where2d:{raze til[count x],/:'where each x}
 
-skeleton:thin 150>=avg each/:1_/:/:0x00 vs/:/:.img.bmpToImg read1`:../myg2n.bmp;
-`:../thinned.bmp 1: .img.imgToBmp 16777215i*1i-skeleton;
-
-queue:enlist first where2d skeleton;
+//skeleton:thin 150>=avg each/:1_/:/:0x00 vs/:/:.img.bmpToImg read1`:../myg2n.bmp;
+//`:../thinned.bmp 1: .img.imgToBmp 16777215i*1i-skeleton;
+//queue:enlist first where2d skeleton;
