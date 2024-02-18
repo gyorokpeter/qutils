@@ -1,3 +1,4 @@
+setlocal
 cls
 call config.cmd
 @if not exist ..\libq.a (

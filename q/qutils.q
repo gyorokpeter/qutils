@@ -9,6 +9,8 @@
     .qutils.filetimeToTs:.qutils.priv.lib 2:(`filetimeToTsK;1);
     .qutils.xorDecode:.qutils.priv.lib 2:(`xorDecode;2);
     .qutils.utf8toANSI:.qutils.priv.lib 2:(`utf8toANSI;1);
+    .qutils.runProc:.qutils.priv.lib 2:(`runProc;2);
+    .qutils.runCoProc:.qutils.priv.lib 2:(`runCoProc;2);
     }[]
 
 .qutils.getFileTimeTs:{[path]

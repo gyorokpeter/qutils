@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <tuple>
 
 using namespace std;
 
@@ -198,3 +199,142 @@ char *UnicodeToCodePage(int codePage, const wchar_t *src, int srcLen = 0)
     
     return x;
     }
+
+struct streamThreadParams {
+    HANDLE h;
+    std::string str;
+};
+
+DWORD __stdcall readDataFromExtProgram(void *params)
+{
+    const int BUFSIZE = 4096;
+    HANDLE h = ((streamThreadParams*)params)->h;
+    std::string &str = ((streamThreadParams*)params)->str;
+    DWORD dwRead;
+    CHAR chBuf[BUFSIZE];
+    BOOL bSuccess = FALSE;
+
+    for (;;)
+    {
+        bSuccess = ReadFile(h, chBuf, BUFSIZE, &dwRead, NULL);
+        if (!bSuccess) {
+            int err=GetLastError();
+            if (err == ERROR_OPERATION_ABORTED || err == ERROR_BROKEN_PIPE) break;
+            continue;
+        }
+        if (dwRead == 0) continue;
+        str += chBuf;
+
+        if (!bSuccess) break;
+    }
+    return 0;
+}
+
+std::tuple<int,std::string,std::string> runProcImpl(std::string externalProgram, std::string arguments)
+{
+
+    HANDLE pipeOutRd = NULL;
+    HANDLE pipeOutWr = NULL;
+    HANDLE pipeErrRd = NULL;
+    HANDLE pipeErrWr = NULL;
+    HANDLE readStdoutThread = NULL;
+    HANDLE readStderrThread = NULL;
+    PROCESS_INFORMATION pi;
+
+    streamThreadParams streamOut;
+    streamThreadParams streamErr;
+    STARTUPINFO si;
+    SECURITY_ATTRIBUTES saAttr;
+
+    ZeroMemory(&saAttr, sizeof(saAttr));
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle = TRUE;
+    saAttr.lpSecurityDescriptor = NULL;
+
+    if (!CreatePipe(&pipeOutRd, &pipeOutWr, &saAttr, 0))
+    {
+        throw std::runtime_error(niceGetLastError());
+    }
+
+    if (!SetHandleInformation(pipeOutRd, HANDLE_FLAG_INHERIT, 0))
+    {
+        throw std::runtime_error(niceGetLastError());
+    }
+
+    if (!CreatePipe(&pipeErrRd, &pipeErrWr, &saAttr, 0))
+    {
+        throw std::runtime_error(niceGetLastError());
+    }
+
+    if (!SetHandleInformation(pipeErrRd, HANDLE_FLAG_INHERIT, 0))
+    {
+        throw std::runtime_error(niceGetLastError());
+    }
+
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    si.hStdError = pipeErrWr;
+    si.hStdOutput = pipeOutWr;
+    si.dwFlags |= STARTF_USESTDHANDLES;
+
+    ZeroMemory(&pi, sizeof(pi));
+
+    std::string commandLine = externalProgram + " " + arguments;
+
+    // Start the child process.
+    if (!CreateProcessA(NULL,           // No module name (use command line)
+        (TCHAR*)commandLine.c_str(),    // Command line
+        NULL,                           // Process handle not inheritable
+        NULL,                           // Thread handle not inheritable
+        TRUE,                           // Set handle inheritance
+        0,                              // No creation flags
+        NULL,                           // Use parent's environment block
+        NULL,                           // Use parent's starting directory
+        &si,                            // Pointer to STARTUPINFO structure
+        &pi)                            // Pointer to PROCESS_INFORMATION structure
+        )
+        throw std::runtime_error(niceGetLastError());
+    streamOut.h = pipeOutRd;
+    streamErr.h = pipeErrRd;
+    readStdoutThread = CreateThread(0, 0, readDataFromExtProgram, &streamOut, 0, NULL);
+    readStderrThread = CreateThread(0, 0, readDataFromExtProgram, &streamErr, 0, NULL);
+    WaitForSingleObject(pi.hProcess, INFINITE);
+    DWORD exitCode;
+    GetExitCodeProcess(pi.hProcess, &exitCode);
+    CloseHandle(pipeOutWr);
+    CloseHandle(pipeErrWr);
+    WaitForSingleObject(readStdoutThread, INFINITE);
+    WaitForSingleObject(readStderrThread, INFINITE);
+    return {exitCode, streamOut.str, streamErr.str};
+}
+
+void *runCoProcImpl(std::string externalProgram, std::string arguments)
+{
+    PROCESS_INFORMATION pi;
+    STARTUPINFO si;
+
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    si.dwFlags = STARTF_USESTDHANDLES;
+    si.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+    si.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+
+    ZeroMemory(&pi, sizeof(pi));
+
+    std::string commandLine = externalProgram + " " + arguments;
+
+    // Start the child process.
+    if (!CreateProcessA(NULL,           // No module name (use command line)
+        (TCHAR*)commandLine.c_str(),    // Command line
+        NULL,                           // Process handle not inheritable
+        NULL,                           // Thread handle not inheritable
+        TRUE,                          // Set handle inheritance
+        0,                              // No creation flags
+        NULL,                           // Use parent's environment block
+        NULL,                           // Use parent's starting directory
+        &si,                            // Pointer to STARTUPINFO structure
+        &pi)                            // Pointer to PROCESS_INFORMATION structure
+        )
+        throw std::runtime_error(niceGetLastError());
+    return pi.hProcess;
+}

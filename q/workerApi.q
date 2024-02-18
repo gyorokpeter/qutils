@@ -27,7 +27,7 @@
         system"p 0W";
     ];
     .worker.taskList,:enlist task;
-    system "start /B ",.z.X[0]," ",.worker.priv.path,"/worker.q ",string[system"p"]," 1>&2";
+    .qutils.runCoProc[.z.X[0];.worker.priv.path,"/worker.q ",string system"p"];
     };
 
 
@@ -38,7 +38,7 @@
         system"p 0W";
     ];
     .worker.persistentList,:enlist callback;
-    system "start /B ",.z.X[0]," ",.worker.priv.path,"/workerPersistent.q ",string[system"p"]," <NUL 1>&2";
+    .qutils.runCoProc[.z.X[0];.worker.priv.path,"/workerPersistent.q ",string system"p"];
     };
 
 .worker.persistentStarted:{

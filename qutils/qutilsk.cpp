@@ -5,17 +5,9 @@
 #include <string>
 #include <unordered_map>
 #include <iostream>
+#include <tuple>
 
-void initTZImpl();
-
-wchar_t *CodePageToUnicode(int codePage, const char *src, int srcLen);
-char *UnicodeToCodePage(int codePage, const wchar_t *src, int srcLen = 0);
-
-uint64_t winGetSystemTimeAsFileTimeImpl();
-uint64_t winGetFileTimeImpl(const char *fileName, uint32_t length);
-bool winSetFileTimeImpl(const char *fileName, uint32_t length, uint64_t fileTime);
-
-uint64_t getChinaTimeImpl();
+#include "qutils.hpp"
 
 std::unordered_map<std::string,std::string> replaceDict;
 
@@ -248,6 +240,26 @@ K xorDecode(K key, K msg) {
         ++r;
     }
     return knk(2, kg(ky), result);
+}
+
+K runProc(K prog, K cmdline) {
+    if (prog->t != KC) return kerror("runProc: prog must be string");
+    if (cmdline->t != KC) return kerror("runProc: cmdline must be string");
+    std::string progstr((char*)&kC(prog)[0], prog->n);
+    std::string cmdlinestr((char*)&kC(cmdline)[0], cmdline->n);
+    J code;
+    std::string out, err;
+    std::tie(code, out, err) = runProcImpl(progstr.c_str(), cmdlinestr.c_str());
+    return knk(3, ki(code), kpn(out.data(), out.size()), kpn(err.data(), err.size()));
+}
+
+K runCoProc(K prog, K cmdline) {
+    if (prog->t != KC) return kerror("runProc: prog must be string");
+    if (cmdline->t != KC) return kerror("runProc: cmdline must be string");
+    std::string progstr((char*)&kC(prog)[0], prog->n);
+    std::string cmdlinestr((char*)&kC(cmdline)[0], cmdline->n);
+    int pid = (int)runCoProcImpl(progstr.c_str(), cmdlinestr.c_str());
+    return ki(pid);
 }
 
 }
