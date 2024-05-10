@@ -47,8 +47,8 @@
     ".",string[ns],".",s};
 
 .k2q.unparse0:{[ns;locals;mode;x]
-    if[";"~first x; :";"sv .k2q.unparse0[ns;locals;`free]each 1_x];
     t:type x;
+    if[";"~first x;if[0<=t;:";"sv .k2q.unparse0[ns;locals;`free]each 1_x]];
     if[-11h=t; :.k2q.resolveVarName[ns;locals;x]];
     if[11h=t;
         if[1=count x; :longstring first x];
@@ -287,6 +287,7 @@ k2q:{
     if[not .k2q.unparse[((';(\:;enlist `));enlist `a.b`a.c)]~"(` vs)'[`a.b`a.c]"; fail[]];
     if[not k2q[{}]~{[x]::};fail[]];
     if[not k2q[{-1}]~{[x] -1j};fail[]];
+    if[not k2q[{(";";1;2)}]~{[x](";";1j;2j)};fail[]];
     if[not k2q[{z}[1]]~{[x;y;z]z}[1];fail[]];
     if[not k2q['[value"k){x}";value"k){x}"]]~(')[{[x]x};{[x]x}];fail[]];
     if[not k2q['[value"k){x}"]]~(')[{[x]x}];fail[]];
