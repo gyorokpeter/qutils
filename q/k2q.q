@@ -23,6 +23,14 @@
 
 .finos.dep.include"longstring.q";
 
+.k2q.convOps:enlist[(';~:;=)]!enlist[<>];
+.k2q.convOps[(';~:;>)]:(<=);
+.k2q.convOps[(';~:;<)]:(>=);
+
+.k2q.convOpStr:enlist[<>]!enlist"<>";
+.k2q.convOpStr[<=]:"<=";
+.k2q.convOpStr[>=]:">=";
+
 .k2q.join:{[left;right]
     needSpace:0b;
     break:.Q.an,".`";
@@ -48,6 +56,9 @@
 
 .k2q.unparse0:{[ns;locals;mode;x]
     t:type x;
+    if[105h=t;
+        if[x in key .k2q.convOpStr;:.k2q.convOpStr x];
+    ];
     if[";"~first x;if[0<=t;:";"sv .k2q.unparse0[ns;locals;`free]each 1_x]];
     if[-11h=t; :.k2q.resolveVarName[ns;locals;x]];
     if[11h=t;
@@ -136,7 +147,11 @@
         infix:0b;
         if[tfx=0h;
             tffx:type first first x;
-            if[103h=tffx; infix:1b];
+            if[103h=tffx;if[2=count first x; infix:1b]];
+        ];
+        if[first[x]in key .k2q.convOps;
+            x[0]:.k2q.convOps[first x];
+            infix:1b;
         ];
         if[tfx in 101 102h; infix:1b];
         if[tfx=-11h; if[x[0] like ".q.*";
@@ -177,11 +192,12 @@
 
 k2q:{
     if[100h=t:type x;
+        pf:.k2q.parseFunction x;
         v:value[x];
         params:v 1;
         locals:v 2;
         ns:first v 3;
-        str:.k2q.unparse0[ns;params,locals;`free;.k2q.parseFunction x];
+        str:.k2q.unparse0[ns;params,locals;`free;pf];
         :value"{[",(";"sv string params),"]",$["-"=first str;" ";""],str,"}";
     ];
     if[104h=t;
@@ -289,6 +305,10 @@ k2q:{
     if[not k2q[{-1}]~{[x] -1j};fail[]];
     if[not k2q[{(";";1;2)}]~{[x](";";1j;2j)};fail[]];
     if[not k2q[{enlist`a}]~{[x]enlist `a};fail[]];
+    if[not k2q[{1<>2}]~{[x]1j<>2j};fail[]];
+    if[not k2q[{1<=2}]~{[x]1j<=2j};fail[]];
+    if[not k2q[{1>=2}]~{[x]1j>=2j};fail[]];
+    if[not k2q[{(')[neg;vs][x;y]}]~{[x;y](')[neg;vs][x;y]};fail[]];
     if[not k2q[{z}[1]]~{[x;y;z]z}[1];fail[]];
     if[not k2q['[value"k){x}";value"k){x}"]]~(')[{[x]x};{[x]x}];fail[]];
     if[not k2q['[value"k){x}"]]~(')[{[x]x}];fail[]];
