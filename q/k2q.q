@@ -72,11 +72,11 @@
         if[1=count x; :longstring first x];
         holes:where .k2q.isHole each x;
     ];
-    if[enlist~first x;
+    if[enlist~first x;if[2<count x;
         r:.k2q.unparse0[ns;locals;`free] each 1_x;
         r[holes-1]:count[holes]#enlist"";
         :"(",(";"sv r),")";
-    ];
+    ]];
     if[100h=t;
         if[not null c:.q?x; :string c];
         if[string[x] like "k)*";
@@ -288,6 +288,7 @@ k2q:{
     if[not k2q[{}]~{[x]::};fail[]];
     if[not k2q[{-1}]~{[x] -1j};fail[]];
     if[not k2q[{(";";1;2)}]~{[x](";";1j;2j)};fail[]];
+    if[not k2q[{enlist`a}]~{[x]enlist `a};fail[]];
     if[not k2q[{z}[1]]~{[x;y;z]z}[1];fail[]];
     if[not k2q['[value"k){x}";value"k){x}"]]~(')[{[x]x};{[x]x}];fail[]];
     if[not k2q['[value"k){x}"]]~(')[{[x]x}];fail[]];
