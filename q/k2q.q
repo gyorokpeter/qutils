@@ -34,7 +34,10 @@
 .k2q.join:{[left;right]
     needSpace:0b;
     break:.Q.an,".`";
-    if[last[left] in break;if[first[right] in break,"-"; needSpace:1b]];
+    if[last[left] in break;
+        if[first[right] in break; needSpace:1b];
+        if[first[right]="-";if[1<count right; needSpace:1b]];
+    ];
     $[needSpace;left," ",right;left,right]};
 
 .k2q.isVersus:{
@@ -228,6 +231,7 @@ k2q:{
     if[not .k2q.unparse[(~;::;`x)]~"(::)~x"; fail[]];
     if[not .k2q.unparse[(~;`x;::)]~"x~(::)"; fail[]];
     if[not .k2q.unparse[(bin;(#;`x;`z);`x)]~"(x#z)bin x"; fail[]];
+    if[not .k2q.unparse[(-;1;0x00)]~"1j-0x00"; fail[]];
     if[not .k2q.unparse[(_;`x;`y)]~"x _ y"; fail[]];
     if[not .k2q.unparse[($;`x;`y;`z)]~"$[x;y;z]"; fail[]];
     if[not .k2q.unparse[($;`x;`y;`z;`a)]~"$[x;y;z;a]"; fail[]];
