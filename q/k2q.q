@@ -60,6 +60,7 @@
 .k2q.unparse0:{[ns;locals;mode;x]
     t:type x;
     if[105h=t;
+        if[not null c:.q?x;:string c];
         if[x in key .k2q.convOpStr;:.k2q.convOpStr x];
     ];
     if[";"~first x;if[0<=t;
@@ -316,6 +317,7 @@ k2q:{
     if[not k2q[{}]~{[x]::};fail[]];
     if[not k2q[{-1}]~{[x] -1j};fail[]];
     if[not k2q[{";"}]~{[x]";"};fail[]];
+    if[not k2q[{hsym}]~{[x]hsym};fail[]];
     if[not k2q[{(";";1;2)}]~{[x](";";1j;2j)};fail[]];
     if[not k2q[{enlist`a}]~{[x]enlist `a};fail[]];
     if[not k2q[{1<>2}]~{[x]1j<>2j};fail[]];
