@@ -72,6 +72,7 @@
     if[11h=t;
         if[1=count x; :longstring first x];
     ];
+    if[99h=t; :longstring x]; //occurs in parsed select statement
     if[t in 101 102h;
         if[t=101h; if[mode=`binaryOperator; :string x]];
         r:string x;
@@ -336,6 +337,7 @@ k2q:{
     if[not k2q[value"k){.q.set[`.q.abs;.q.abs]}"]~{[x]`.q.abs set abs};fail[]];
     if[not k2q[value"k){.q.count[x]}"]~{[x]count x};fail[]];
     if[not k2q[value"k){.q.count[x]}"]~{[x]count x};fail[]];
+    if[not k2q[{select a,b,c from t}]~{[x]?[t;();0b;`a`b`c!`a`b`c]};fail[]];
     //-8! of {a:1;x+a+b} in namespace `.evil
     if[not k2q[-9!0x010000001f000000646576696c000a000b0000007b613a313b782b612b627d]~{[x]a:1j;x+a+.evil.b};fail[]];
     };
