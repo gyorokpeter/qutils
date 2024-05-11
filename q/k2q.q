@@ -83,6 +83,7 @@
         ];
         if[x~(<:); r:"iasc"];
         if[mode in`projectionLeftArg`projectionRightArg; r:"(",r,")"];
+        if[x~(::); if[mode=`free; :""]];
         :r;
     ];
     if[any t within/:(1 10h;12 20h); :longstring x];
@@ -314,7 +315,7 @@ k2q:{
     if[not .k2q.unparse[(';(\:;enlist `))]~"(` vs)'"; fail[]];
     if[not .k2q.unparse[parse"(` vs)'[`a.b`a.c]"]~"(` vs)'[`a.b`a.c]"; fail[]];
     if[not .k2q.unparse[((';(\:;enlist `));enlist `a.b`a.c)]~"(` vs)'[`a.b`a.c]"; fail[]];
-    if[not k2q[{}]~{[x]::};fail[]];
+    if[not k2q[{}]~{[x]};fail[]];
     if[not k2q[{-1}]~{[x] -1j};fail[]];
     if[not k2q[{";"}]~{[x]";"};fail[]];
     if[not k2q[{hsym}]~{[x]hsym};fail[]];
