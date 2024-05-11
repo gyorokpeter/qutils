@@ -62,7 +62,11 @@
     if[105h=t;
         if[x in key .k2q.convOpStr;:.k2q.convOpStr x];
     ];
-    if[";"~first x;if[0<=t;:";"sv .k2q.unparse0[ns;locals;`free]each 1_x]];
+    if[";"~first x;if[0<=t;
+        str:";"sv .k2q.unparse0[ns;locals;`free]each 1_x;
+        if[mode=`fnParam;str:"[",str,"]"];
+        :str;
+    ]];
     if[-11h=t; :.k2q.resolveVarName[ns;locals;x]];
     if[11h=t;
         if[1=count x; :longstring first x];
@@ -176,7 +180,7 @@
         ];
     ];
     if[2<=count x;
-        r:.k2q.unparse0[ns;locals;`free]each 1_x;
+        r:.k2q.unparse0[ns;locals;`fnParam]each 1_x;
         r[holes-1]:count[holes]#enlist"";
         f:.k2q.unparse0[ns;locals;`indexable;first x];
         if[(')~first x; if[3=count x; f:"(')"]];
@@ -236,6 +240,7 @@ k2q:{
     if[not .k2q.unparse[($;`x;`y;`z)]~"$[x;y;z]"; fail[]];
     if[not .k2q.unparse[($;`x;`y;`z;`a)]~"$[x;y;z;a]"; fail[]];
     if[not .k2q.unparse[($;`x;`y;`z;`a;`b)]~"$[x;y;z;a;b]"; fail[]];
+    if[not .k2q.unparse[($;1;(";";2;3);4)]~"$[1j;[2j;3j];4j]"; fail[]];
     if[not .k2q.unparse[(enlist;:;^)]~"(:;^)"; fail[]];
     if[not .k2q.unparse[((enlist;:;^);`f)]~"(:;^)f"; fail[]];
     if[not .k2q.unparse[((/;&);`j)]~"and/[j]"; fail[]];
@@ -307,6 +312,7 @@ k2q:{
     if[not .k2q.unparse[((';(\:;enlist `));enlist `a.b`a.c)]~"(` vs)'[`a.b`a.c]"; fail[]];
     if[not k2q[{}]~{[x]::};fail[]];
     if[not k2q[{-1}]~{[x] -1j};fail[]];
+    if[not k2q[{";"}]~{[x]";"};fail[]];
     if[not k2q[{(";";1;2)}]~{[x](";";1j;2j)};fail[]];
     if[not k2q[{enlist`a}]~{[x]enlist `a};fail[]];
     if[not k2q[{1<>2}]~{[x]1j<>2j};fail[]];
