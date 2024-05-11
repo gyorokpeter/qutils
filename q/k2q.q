@@ -57,6 +57,11 @@
     if[null ns; :s];
     ".",string[ns],".",s};
 
+.k2q.tryUnparseSql:{
+    if[not 102 -11 0 -1 99h~type each x; :0b];
+    (1b;"select",$[count x 4;" ",","sv{string[x],$[x<>y;":",string y;""]}'[key x 4;value x 4];""]
+        ," from ",string x 1)}
+
 .k2q.unparse0:{[ns;locals;mode;x]
     t:type x;
     if[105h=t;
@@ -72,7 +77,6 @@
     if[11h=t;
         if[1=count x; :longstring first x];
     ];
-    if[99h=t; :longstring x]; //occurs in parsed select statement
     if[t in 101 102h;
         if[t=101h; if[mode=`binaryOperator; :string x]];
         r:string x;
@@ -183,6 +187,10 @@
         ];
     ];
     if[2<=count x;
+        if[(?)~first x;
+            sr:.k2q.tryUnparseSql x;
+            if[first sr; :last sr];
+        ];
         r:.k2q.unparse0[ns;locals;`fnParam]each 1_x;
         r[holes-1]:count[holes]#enlist"";
         f:.k2q.unparse0[ns;locals;`indexable;first x];
@@ -316,6 +324,7 @@ k2q:{
     if[not .k2q.unparse[(';(\:;enlist `))]~"(` vs)'"; fail[]];
     if[not .k2q.unparse[parse"(` vs)'[`a.b`a.c]"]~"(` vs)'[`a.b`a.c]"; fail[]];
     if[not .k2q.unparse[((';(\:;enlist `));enlist `a.b`a.c)]~"(` vs)'[`a.b`a.c]"; fail[]];
+    if[not .k2q.unparse[(?;`t;();0b;`a`b`c!`a`b`c)]~"select a,b,c from t"; fail[]];
     if[not k2q[{}]~{[x]};fail[]];
     if[not k2q[{-1}]~{[x] -1j};fail[]];
     if[not k2q[{";"}]~{[x]";"};fail[]];
@@ -337,7 +346,6 @@ k2q:{
     if[not k2q[value"k){.q.set[`.q.abs;.q.abs]}"]~{[x]`.q.abs set abs};fail[]];
     if[not k2q[value"k){.q.count[x]}"]~{[x]count x};fail[]];
     if[not k2q[value"k){.q.count[x]}"]~{[x]count x};fail[]];
-    if[not k2q[{select a,b,c from t}]~{[x]?[t;();0b;`a`b`c!`a`b`c]};fail[]];
     //-8! of {a:1;x+a+b} in namespace `.evil
     if[not k2q[-9!0x010000001f000000646576696c000a000b0000007b613a313b782b612b627d]~{[x]a:1j;x+a+.evil.b};fail[]];
     };
