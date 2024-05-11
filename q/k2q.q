@@ -23,6 +23,8 @@
 
 .finos.dep.include"longstring.q";
 
+.k2q.replaceIasc:1b;
+
 .k2q.convOps:enlist[(';~:;=)]!enlist[<>];
 .k2q.convOps[(';~:;>)]:(<=);
 .k2q.convOps[(';~:;<)]:(>=);
@@ -86,7 +88,7 @@
               not c in`mmu`lsq; string c;
               r];
         ];
-        if[x~(<:); r:"iasc"];
+        if[x~(<:); if[.k2q.replaceIasc;r:"iasc"]];
         if[mode in`projectionLeftArg`projectionRightArg; r:"(",r,")"];
         if[x~(::); if[mode=`free; :""]];
         :r;
