@@ -3,6 +3,7 @@ longstring:{
     if[t in 100 101 102 105h; :string[x]];
     if[t=0h; :$[1=count x;"enlist[",.z.s[first x],"]";"(",(";"sv .z.s each x),")"]];
     if[t=-1h; :string[x],"b"];
+    if[t=-2h; $[null x;:"0Ng"; '"nyi GUID literal"]];
     if[t=-4h; :"0x",string[x]];
     if[t in -5 -6 -7 -17 -19h; :$[null x;"0N";string[x]],.Q.t[abs t]];
     if[t in -8 -9h; :$[null x;"0n";string[x]],.Q.t[abs t]];

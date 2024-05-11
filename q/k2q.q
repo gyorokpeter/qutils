@@ -330,6 +330,7 @@ k2q:{
     if[not k2q[{";"}]~{[x]";"};fail[]];
     if[not k2q[{hsym}]~{[x]hsym};fail[]];
     if[not k2q[{upsert}]~{[x]upsert};fail[]];
+    if[not k2q[{0Ng}]~{[x]0Ng};fail[]];
     if[not k2q[{(";";1;2)}]~{[x](";";1j;2j)};fail[]];
     if[not k2q[{enlist`a}]~{[x]enlist `a};fail[]];
     if[not k2q[{1<>2}]~{[x]1j<>2j};fail[]];
