@@ -186,7 +186,9 @@
         if[(')~first x; if[3=count x; f:"(')"]];
         :f,"[",(";"sv r),"]";
     ];
-    longstring[x]};
+    str:longstring[x];
+    if[t=103;if[mode=`projectionLeftArg;str:"(",str,")"]];
+    str};
 
 .k2q.unparse:{.k2q.unparse0[`;`$();`free;x]};
 
@@ -244,6 +246,7 @@ k2q:{
     if[not .k2q.unparse[(enlist;:;^)]~"(:;^)"; fail[]];
     if[not .k2q.unparse[((enlist;:;^);`f)]~"(:;^)f"; fail[]];
     if[not .k2q.unparse[((/;&);`j)]~"and/[j]"; fail[]];
+    if[not .k2q.unparse[(,;/:;1)]~"(/:),1j"; fail[]];
     if[not .k2q.unparse[`d`i]~"d i"; fail[]];
     if[not .k2q.unparse[`d`i`j]~"d[i;j]"; fail[]];
     if[not .k2q.unparse[parse"y d i"]~"y d i"; fail[]];
