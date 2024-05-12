@@ -23,7 +23,10 @@
 
 .finos.dep.include"longstring.q";
 
-.k2q.replaceIasc:1b;
+// Set to false to preserve the binary representation at the cost of less readable code:
+// * replace <: with iasc (in q, iasc is a wrapper function)
+// * remove .q. prefixes (the q parser binds the definition if using the bare name)
+.k2q.replaceKisms:1b;
 
 .k2q.convOps:enlist[(';~:;=)]!enlist[<>];
 .k2q.convOps[(';~:;>)]:(<=);
@@ -54,7 +57,7 @@
 
 .k2q.resolveVarName:{[ns;locals;v]
     s:string v;
-    if[s like ".q.*";:3_s];
+    if[.k2q.replaceKisms;if[s like ".q.*";:3_s]];
     if[v in locals; :s];
     if[null ns; :s];
     ".",string[ns],".",s};
@@ -62,7 +65,7 @@
 .k2q.tryUnparseSql:{
     if[not 102 -11 0 -1 99h~type each x; :0b];
     (1b;"select",$[count x 4;" ",","sv{string[x],$[x<>y;":",string y;""]}'[key x 4;value x 4];""]
-        ," from ",string x 1)}
+        ," from ",string x 1)};
 
 .k2q.unparse0:{[ns;locals;mode;x]
     t:type x;
@@ -88,7 +91,7 @@
               not c in`mmu`lsq; string c;
               r];
         ];
-        if[x~(<:); if[.k2q.replaceIasc;r:"iasc"]];
+        if[x~(<:); if[.k2q.replaceKisms;r:"iasc"]];
         if[mode in`projectionLeftArg`projectionRightArg; r:"(",r,")"];
         if[x~(::); if[mode=`free; :""]];
         :r;
@@ -170,10 +173,10 @@
             infix:1b;
         ];
         if[tfx in 101 102h; infix:1b];
-        if[tfx=-11h; if[x[0] like ".q.*";
+        if[tfx=-11h; if[x[0] like ".q.*";if[.k2q.replaceKisms;
             x[0]:value x[0];
             tfx:type first x;
-        ]];
+        ]]];
         if[100h=tfx;
             if[first[x] in value .q;
                 infix:2=count value[first x][1];
@@ -236,6 +239,7 @@ k2q:{
 
 .k2q.unittest:{
     fail:{'"failed"};
+    .k2q.replaceKisms:1b;
     if[not .k2q.unparse[1 2 3]~"1 2 3j"; fail[]];
     if[not .k2q.unparse[(";";1;2)]~"1j;2j"; fail[]];
     if[not .k2q.unparse[(|;`x;-1h)]~"x or -1h"; fail[]];
@@ -352,6 +356,9 @@ k2q:{
     if[not k2q[value"k){.q.count[x]}"]~{[x]count x};fail[]];
     //-8! of {a:1;x+a+b} in namespace `.evil
     if[not k2q[-9!0x010000001f000000646576696c000a000b0000007b613a313b782b612b627d]~{[x]a:1j;x+a+.evil.b};fail[]];
+    .k2q.replaceKisms:0b;
+    if[not k2q[value"k){.q.mod[1;]}"]~{[x].q.mod[1j;]};fail[]];
+    .k2q.replaceKisms:1b;
     };
 
 //.k2q.unittest[];
