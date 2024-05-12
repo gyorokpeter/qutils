@@ -63,9 +63,12 @@
     ".",string[ns],".",s};
 
 .k2q.tryUnparseSql:{
-    if[not 102 -11 0 -1 99h~type each x; :0b];
-    (1b;"select",$[count x 4;" ",","sv{string[x],$[x<>y;":",string y;""]}'[key x 4;value x 4];""]
-        ," from ",string x 1)};
+    if[not 102 -11 0 99h~type each x 0 1 2 4; :0b];
+    if[not type[x 3] in -1 99h; :0b];
+    alist:{","sv{string[x],$[x<>y;":",string y;""]}'[key x;value x]};
+    b:$[99h=type x 3;" by ",alist x 3;""];
+    (1b;"select",$[count x 4;" ",alist[x 4];""]
+        ,b," from ",string x 1)};
 
 .k2q.unparse0:{[ns;locals;mode;x]
     t:type x;
@@ -332,6 +335,7 @@ k2q:{
     if[not .k2q.unparse[parse"(` vs)'[`a.b`a.c]"]~"(` vs)'[`a.b`a.c]"; fail[]];
     if[not .k2q.unparse[((';(\:;enlist `));enlist `a.b`a.c)]~"(` vs)'[`a.b`a.c]"; fail[]];
     if[not .k2q.unparse[(?;`t;();0b;`a`b`c!`a`b`c)]~"select a,b,c from t"; fail[]];
+    if[not .k2q.unparse[(?;`t;();`d`e!`d`e;`a`b`c!`a`b`c)]~"select a,b,c by d,e from t"; fail[]];
     if[not k2q[{}]~{[x]};fail[]];
     if[not k2q[{-1}]~{[x] -1j};fail[]];
     if[not k2q[{";"}]~{[x]";"};fail[]];
