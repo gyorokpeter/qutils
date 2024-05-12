@@ -103,7 +103,7 @@
         holes:where .k2q.isHole each x;
     ];
     if[enlist~first x;if[2<count x;
-        r:.k2q.unparse0[ns;locals;`free] each 1_x;
+        r:.k2q.unparse0[ns;locals;`fnParam] each 1_x;
         r[holes-1]:count[holes]#enlist"";
         :"(",(";"sv r),")";
     ]];
@@ -260,6 +260,7 @@ k2q:{
     if[not .k2q.unparse[($;`x;`y;`z;`a)]~"$[x;y;z;a]"; fail[]];
     if[not .k2q.unparse[($;`x;`y;`z;`a;`b)]~"$[x;y;z;a;b]"; fail[]];
     if[not .k2q.unparse[($;1;(";";2;3);4)]~"$[1j;[2j;3j];4j]"; fail[]];
+    if[not .k2q.unparse[(enlist;`h;::)]~"(h;::)"; fail[]];
     if[not .k2q.unparse[(enlist;:;^)]~"(:;^)"; fail[]];
     if[not .k2q.unparse[((enlist;:;^);`f)]~"(:;^)f"; fail[]];
     if[not .k2q.unparse[((/;&);`j)]~"and/[j]"; fail[]];
