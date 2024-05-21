@@ -65,11 +65,18 @@
 .k2q.tryUnparseSql:{
     if[not 102 -11 0h~type each x 0 1 2; :0b];
     if[not type[x 3] in -1 99h; :0b];
-    if[not type[x 4] in 0 99h; :0b];
-    op:$[(?)~first x;"select";"update"];
-    alist:{","sv{string[x],$[x~y;"";":",.k2q.unparse0[`;`$();`free;y]]}'[key x;value x]};
+    if[not type[x 4] in 0 11 99h; :0b];
+    op:$[(?)~first x;"select";
+        11h=type x 4;"delete";
+        $[0<>type x 4;0b;11h=type first x 4];"delete";
+        "update"];
+    alist:{$[99h=type x;
+        ","sv{string[x],$[x~y;"";":",.k2q.unparse0[`;`$();`free;y]]}'[key x;value x];
+        11h=type x 0;
+        ","sv string x 0;
+        '"unknown type in select or by clause"]};
     t:" from ",string[x 1];
-    c:$[count x 2;" where ",","sv .k2q.unparse0[`;`$();`free;]each x 2;""];
+    c:$[count x[2;0];" where ",","sv .k2q.unparse0[`;`$();`free;]each x[2;0];""];
     b:$[99h=type x 3;" by ",alist x 3;""];
     a:$[count x 4;" ",alist[x 4];""];
     (1b;op,a,b,t,c)};
@@ -340,8 +347,14 @@ k2q:{
     if[not .k2q.unparse[((';(\:;enlist `));enlist `a.b`a.c)]~"(` vs)'[`a.b`a.c]"; fail[]];
     if[not .k2q.unparse[(?;`t;();0b;`a`b`c!`a`b`c)]~"select a,b,c from t"; fail[]];
     if[not .k2q.unparse[(?;`t;();`d`e!`d`e;`a`b`c!`a`b`c)]~"select a,b,c by d,e from t"; fail[]];
+    if[not .k2q.unparse[(?;`t;enlist enlist(=;`a;enlist`b);0b;())]~"select from t where a=`b"; fail[]];
+    if[not .k2q.unparse[(!;`t;();0b;`$())]~"delete from t"; fail[]];
+    if[not .k2q.unparse[(!;`t;();0b;enlist enlist`a)]~"delete a from t"; fail[]];
+    if[not .k2q.unparse[(!;`t;();0b;enlist `a`b)]~"delete a,b from t"; fail[]];
+    if[not .k2q.unparse[(!;`t;enlist enlist(=;`a;enlist`b);0b;`$())]~"delete from t where a=`b"; fail[]];
+    if[not .k2q.unparse[(!;`t;();0b;`symbol$())]~"delete from t"; fail[]];
+    if[not .k2q.unparse[(!;`t;();0b;())]~"update from t"; fail[]];
     if[not .k2q.unparse[(!;`t;();0b;enlist[`a]!enlist(each;`b;`c))]~"update a:b each c from t"; fail[]];
-    if[not .k2q.unparse[(?;`t;enlist(=;`a;enlist`b);0b;())]~"select from t where a=`b"; fail[]];
     if[not k2q[{}]~{[x]};fail[]];
     if[not k2q[{-1}]~{[x] -1j};fail[]];
     if[not k2q[{";"}]~{[x]";"};fail[]];
