@@ -258,6 +258,7 @@ k2q:{
     fail:{'"failed"};
     .k2q.replaceKisms:1b;
     if[not .k2q.unparse[1 2 3]~"1 2 3j"; fail[]];
+    if[not .k2q.unparse["1\n"]~"\"1\\n\""; fail[]];
     if[not .k2q.unparse[(";";1;2)]~"1j;2j"; fail[]];
     if[not .k2q.unparse[(|;`x;-1h)]~"x or -1h"; fail[]];
     if[not .k2q.unparse[(/;&)]~"and/"; fail[]];

@@ -21,7 +21,7 @@ longstring:{
     ];
     if[t=4h; :"0x",raze string x];
     if[t=-10h; :.Q.s1[x]];
-    if[t=10h; :"\"",ssr/[x;("\\";"\"");("\\\\";"\\\"")],"\""];
+    if[t=10h; :"\"",ssr/[x;("\\";"\"";"\n");("\\\\";"\\\"";"\\n")],"\""];
     if[t=11h;
         if[0=count x; :"(`$())"];
         :$[1=count x;"enlist[",.z.s[first x],"]";raze"`",/:string[x]]
