@@ -109,7 +109,7 @@
               r];
         ];
         if[x~(<:); if[.k2q.replaceKisms;r:"iasc"]];
-        if[null c;if[mode in`binaryLeftArg`binaryRightArg; r:"(",r,")"]];
+        if[not first[r]within"az";if[mode in`binaryLeftArg`binaryRightArg; r:"(",r,")"]];
         if[x~(::); if[mode=`free; :""]];
         :r;
     ];
@@ -324,6 +324,7 @@ k2q:{
     if[not .k2q.unparse[(":";::)]~":(::)"; fail[]];
     if[not .k2q.unparse[(@:;`a;1)]~"a@:1j"; fail[]];
     if[not .k2q.unparse[(each;count;`x)]~"count each x"; fail[]];
+    if[not .k2q.unparse[(each;enlist;`x)]~"enlist each x"; fail[]];
     if[not .k2q.unparse[(/:;#)]~"#/:"; fail[]];
     if[not .k2q.unparse[((/:;#);1;`x)]~"1j#/:x"; fail[]];
     if[not .k2q.unparse[((/:;$);(*;`x;`y);`y)]~"(x*y)$/:y"; fail[]];
