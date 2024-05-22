@@ -90,7 +90,7 @@
         if[not null c:.q?x;:string c];
         if[x in key .k2q.convOpStr;:.k2q.convOpStr x];
     ];
-    if[";"~first x;if[0<=t;
+    if[";"~first x;if[not t in -10 10h;
         str:";"sv .k2q.unparse0[ns;locals;`free]each 1_x;
         if[mode=`fnParam;str:"[",str,"]"];
         :str;
@@ -368,6 +368,8 @@ k2q:{
     if[not k2q[{}]~{[x]};fail[]];
     if[not k2q[{-1}]~{[x] -1j};fail[]];
     if[not k2q[{";"}]~{[x]";"};fail[]];
+    if[not k2q[{";abc"}]~{[x]";abc"};fail[]];
+    if[not k2q[{"a";"b";"c"}]~{[x]"a";"b";"c"};fail[]];
     if[not k2q[{hsym}]~{[x]hsym};fail[]];
     if[not k2q[{upsert}]~{[x]upsert};fail[]];
     if[not k2q[{raze}]~{[x]raze};fail[]];
