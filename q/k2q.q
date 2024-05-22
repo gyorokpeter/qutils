@@ -131,14 +131,17 @@
         ];
     ];
     if[2=count x;
-        if[(::)~last x;:.k2q.unparse0[ns;locals;`indexable;first x],"[]"];
+        if[(::)~last x;
+            if[":"~first x;:":(::)"];
+            :.k2q.unparse0[ns;locals;`indexable;first x],"[]";
+        ];
         tfx:type first x;
         if[tfx=101h;
             if[first[x]~(,:); x[0]:`enlist];
         ];
         if[-10h=tfx;
             if[first[x] in ":'";
-                if[2=count x; :first[x],.k2q.unparse0[ns;locals;`free;last x]];
+                :first[x],.k2q.unparse0[ns;locals;`free;last x];
             ];
         ];
         if[103h=tfx;
@@ -320,6 +323,7 @@ k2q:{
     if[not .k2q.unparse[parse"@[;@]"]~"@[;@]"; fail[]];
     if[not .k2q.unparse[(::;`x;`y)]~"x::y"; fail[]];
     if[not .k2q.unparse[(":";`x)]~":x"; fail[]];
+    if[not .k2q.unparse[(":";::)]~":(::)"; fail[]];
     if[not .k2q.unparse[(@:;`a;1)]~"a@:1j"; fail[]];
     if[not .k2q.unparse[(/:;#)]~"#/:"; fail[]];
     if[not .k2q.unparse[((/:;#);1;`x)]~"1j#/:x"; fail[]];
