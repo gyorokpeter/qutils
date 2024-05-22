@@ -72,9 +72,11 @@
         $[0<>type x 4;0b;11h=type first x 4];"delete";
         "update"];
     alist:{$[99h=type x;
-        ","sv{string[x],$[x~y;"";":",.k2q.unparse0[`;`$();`free;y]]}'[key x;value x];
+            ","sv{string[x],$[x~y;"";":",.k2q.unparse0[`;`$();`free;y]]}'[key x;value x];
         11h=type x 0;
-        ","sv string x 0;
+            ","sv string x 0;
+        0h=type x;
+            ","sv .k2q.unparse0[`;`$();`free]each x;
         '"unknown type in select or by clause"]};
     t:" from ",string[x 1];
     c:$[count x[2;0];" where ",","sv .k2q.unparse0[`;`$();`free;]each x[2;0];""];
@@ -347,6 +349,7 @@ k2q:{
     if[not .k2q.unparse[parse"(` vs)'[`a.b`a.c]"]~"(` vs)'[`a.b`a.c]"; fail[]];
     if[not .k2q.unparse[((';(\:;enlist `));enlist `a.b`a.c)]~"(` vs)'[`a.b`a.c]"; fail[]];
     if[not .k2q.unparse[(?;`t;();();())]~"exec from t"; fail[]];
+    if[not .k2q.unparse[(?;`t;();();enlist(~:;`a))]~"exec not a from t"; fail[]];
     if[not .k2q.unparse[(?;`t;();0b;`a`b`c!`a`b`c)]~"select a,b,c from t"; fail[]];
     if[not .k2q.unparse[(?;`t;();`d`e!`d`e;`a`b`c!`a`b`c)]~"select a,b,c by d,e from t"; fail[]];
     if[not .k2q.unparse[(?;`t;enlist enlist(=;`a;enlist`b);0b;())]~"select from t where a=`b"; fail[]];
