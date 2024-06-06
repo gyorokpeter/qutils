@@ -57,6 +57,7 @@
 
 .k2q.resolveVarName:{[ns;locals;v]
     s:string v;
+    if[v in `if`do; :s];
     if[.k2q.replaceKisms;if[s like ".q.*";:3_s]];
     if[v in locals; :s];
     if[null ns; :s];
@@ -393,8 +394,9 @@ k2q:{
     if[not k2q[value"k){.q.set[`.q.abs;.q.abs]}"]~{[x]`.q.abs set abs};fail[]];
     if[not k2q[value"k){.q.count[x]}"]~{[x]count x};fail[]];
     if[not k2q[value"k){.q.count[x]}"]~{[x]count x};fail[]];
-    //-8! of {a:1;x+a+b} in namespace `.evil
-    if[not k2q[-9!0x010000001f000000646576696c000a000b0000007b613a313b782b612b627d]~{[x]a:1j;x+a+.evil.b};fail[]];
+    //-8! of {if 1b;a:1;x+a+b} in namespace `.evil
+    if[not k2q[-9!0x0100000025000000646576696c000a00110000007b69662031623b613a313b782b612b627d]~
+        {[x]if 1b;a:1j;x+a+.evil.b};fail[]];
     .k2q.replaceKisms:0b;
     if[not k2q[value"k){.q.mod[1;]}"]~{[x].q.mod[1j;]};fail[]];
     .k2q.replaceKisms:1b;
