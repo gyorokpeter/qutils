@@ -41,7 +41,7 @@
     break:.Q.an,".`";
     if[last[left] in break;
         if[first[right] in break; needSpace:1b];
-        if[first[right]="-";if[1<count right; needSpace:1b]];
+        if[first[right]="-";if[1<count right;if[":"<>right 1;needSpace:1b]]];
     ];
     $[needSpace;left," ",right;left,right]};
 
@@ -57,8 +57,9 @@
 
 .k2q.resolveVarName:{[ns;locals;v]
     s:string v;
-    if[v in `if`do; :s];
+    if[v in `if`do`while; :s];
     if[.k2q.replaceKisms;if[s like ".q.*";:3_s]];
+    if[s like".*"; :s];
     if[v in locals; :s];
     if[null ns; :s];
     ".",string[ns],".",s};
@@ -127,9 +128,7 @@
     ]];
     if[100h=t;
         if[not null c:.q?x; :string c];
-        if[string[x] like "k)*";
-            :string k2q x;
-        ];
+        :string k2q .k2q.mkLambda[ns;x];
     ];
     if[2=count x;
         if[(::)~last x;
@@ -137,9 +136,6 @@
             :.k2q.unparse0[ns;locals;`indexable;first x],"[]";
         ];
         tfx:type first x;
-        if[tfx=101h;
-            if[first[x]~(,:); x[0]:`enlist];
-        ];
         if[-10h=tfx;
             if[first[x] in ":'";
                 :first[x],.k2q.unparse0[ns;locals;`free;last x];
@@ -176,7 +172,10 @@
         if[not needBrackets;
             r:$[isBinary;    //projection
                 .k2q.join[.k2q.unparse0[ns;locals;`indexable;last x];.k2q.unparse0[ns;locals;`free;first x]];
-                .k2q.join[.k2q.unparse0[ns;locals;`indexable;first x];.k2q.unparse0[ns;locals;`binaryRightArg;last x]]
+                [
+                    isEnlist:$[tfx<>101h;0b;first[x]~(,:)];
+                    .k2q.join[$[isEnlist;"enlist";.k2q.unparse0[ns;locals;`indexable;first x]];.k2q.unparse0[ns;locals;`binaryRightArg;last x]]
+                ]
             ];
             if[mode in`indexable`iterable; r:"(",r,")"];
             :r;
@@ -220,6 +219,7 @@
         r:.k2q.unparse0[ns;locals;`fnParam]each 1_x;
         r[holes-1]:count[holes]#enlist"";
         f:.k2q.unparse0[ns;locals;`indexable;first x];
+        if[2=count[x];if[(,:)~first x;f:"enlist"]];
         if[(')~first x; if[3=count x; f:"(')"]];
         :f,"[",(";"sv r),"]";
     ];
@@ -235,6 +235,14 @@
     s2:-1_(1+2*isK)_s;
     if["["=first s2; s2:(1+first where"]"=s2)_s2];
     parse$[isK;"k)";""],s2};
+
+.k2q.mkLambda:{[ns;code]
+    unLE:{$[-4h=type x;enlist x;reverse 0x00 vs x]};
+    nsStr:string ns;
+    codeStr:$[10h=type code;code;string code];
+    len:`int$16+count[nsStr]+count[codeStr];
+    msg:0x01000000,unLE[len],0x64,(`byte$nsStr),0x000a00,unLE[`int$count codeStr],`byte$codeStr;
+    -9!msg};
 
 k2q:{
     if[100h=t:type x;
@@ -258,13 +266,14 @@ k2q:{
     ];
     x};
 
-.k2q.unittest:{
+.k2q.unittest1:{
     fail:{'"failed"};
     .k2q.replaceKisms:1b;
     if[not .k2q.unparse[1 2 3]~"1 2 3j"; fail[]];
     if[not .k2q.unparse["1\n"]~"\"1\\n\""; fail[]];
     if[not .k2q.unparse[(";";1;2)]~"1j;2j"; fail[]];
     if[not .k2q.unparse[(|;`x;-1h)]~"x or -1h"; fail[]];
+    if[not .k2q.unparse[(-:;`x;1h)]~"x-:1h"; fail[]];
     if[not .k2q.unparse[(/;&)]~"and/"; fail[]];
     if[not .k2q.unparse[(,:;`x;())]~"x,:()";fail[]];
     if[not .k2q.unparse[(!;0;`z)]~"0j!z";fail[]];
@@ -330,6 +339,10 @@ k2q:{
     if[not .k2q.unparse[((/:;#);1;`x)]~"1j#/:x"; fail[]];
     if[not .k2q.unparse[((/:;$);(*;`x;`y);`y)]~"(x*y)$/:y"; fail[]];
     if[not .k2q.unparse[(';(';#:))]~"count''"; fail[]];
+    };
+
+.k2q.unittest2:{
+    fail:{'"failed"};
     if[not .k2q.unparse[((';(';#:));`y)]~"count''[y]"; fail[]];
     if[not .k2q.unparse[(?;enlist `a`b`c;`d)]~"`a`b`c?d"; fail[]];
     if[not .k2q.unparse[((&:;`x);`y)]~"where[x]y"; fail[]];
@@ -394,12 +407,20 @@ k2q:{
     if[not k2q[value"k){.q.set[`.q.abs;.q.abs]}"]~{[x]`.q.abs set abs};fail[]];
     if[not k2q[value"k){.q.count[x]}"]~{[x]count x};fail[]];
     if[not k2q[value"k){.q.count[x]}"]~{[x]count x};fail[]];
-    //-8! of {if 1b;a:1;x+a+b} in namespace `.evil
-    if[not k2q[-9!0x0100000025000000646576696c000a00110000007b69662031623b613a313b782b612b627d]~
-        {[x]if 1b;a:1j;x+a+.evil.b};fail[]];
+    if[not k2q[value"k){(,1)~x}"]~{[x]enlist[1j]~x};fail[]];
+    if[not k2q[.k2q.mkLambda[`evil]{if 1b;a:1;x+a+b}]~{[x]if 1b;a:1j;x+a+.evil.b};fail[]];
+    if[not k2q[.k2q.mkLambda[`evil]{while[l:1;l]}]~{[x]while[l:1j;l]};fail[]];
+    if[not k2q[.k2q.mkLambda[`evil]{{enlist a}}]~{[x]{[x]enlist .evil.a}};fail[]];
+    if[not k2q[.k2q.mkLambda[`evil;"k){,1}"]]~{[x]enlist 1j};fail[]];
+    if[not k2q[.k2q.mkLambda[`evil;"k){.z.ex}"]]~{[x].z.ex};fail[]];
     .k2q.replaceKisms:0b;
     if[not k2q[value"k){.q.mod[1;]}"]~{[x].q.mod[1j;]};fail[]];
     .k2q.replaceKisms:1b;
+    };
+
+.k2q.unittest:{
+    .k2q.unittest1[];
+    .k2q.unittest2[];
     };
 
 //.k2q.unittest[];
