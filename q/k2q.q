@@ -149,6 +149,9 @@
                 isIter:0b;
                 tfx:100h;
             ];
+            if[mode<>`binaryOperator;if[not null name:.q?(@). x;
+                :string name;
+            ]];
             if[isIter; :.k2q.join[.k2q.unparse0[ns;locals;`iterable;last x];.k2q.unparse0[ns;locals;`constant;first x]]];
         ];
         needBrackets:0b;
@@ -158,6 +161,9 @@
                 needBrackets:1b;
                 if[.k2q.isVersus[first x];  //rephrase as q, since k parses /: \: as iterators even when used as sv/vs
                     :.k2q.unparse0[ns;locals;mode;(((/:;\:)!(sv;vs))first first x;last first x;last x)];
+                ];
+                if[not null name:.q?(@). first[x];
+                    :.k2q.unparse0[ns;locals;mode;(.q name;last x)];
                 ];
             ];
         ];
@@ -381,6 +387,7 @@ k2q:{
     if[not .k2q.unparse[(!;`t;();0b;enlist[`a]!enlist(each;`b;`c))]~"update a:b each c from t"; fail[]];
     if[not k2q[{}]~{[x]};fail[]];
     if[not k2q[{-1}]~{[x] -1j};fail[]];
+    if[not k2q[{" \t\r\n"}]~{[x]" \t\r\n"};fail[]];
     if[not k2q[{";"}]~{[x]";"};fail[]];
     if[not k2q[{";abc"}]~{[x]";abc"};fail[]];
     if[not k2q[{"a";"b";"c"}]~{[x]"a";"b";"c"};fail[]];
@@ -389,6 +396,9 @@ k2q:{
     if[not k2q[{raze}]~{[x]raze};fail[]];
     if[not k2q[{sums}]~{[x]sums};fail[]];
     if[not k2q[{deltas}]~{[x]deltas};fail[]];
+    if[not k2q[{,/}]~{[x]raze};fail[]];
+    if[not k2q[{,/[1 2 3]}]~{[x]raze 1 2 3j};fail[]];
+    if[not k2q[{1 2,/(3 4;5 6)}]~{[x]1 2j,/(3 4j;5 6j)};fail[]];
     if[not k2q[{0Ng}]~{[x]0Ng};fail[]];
     if[not k2q[{(";";1;2)}]~{[x](";";1j;2j)};fail[]];
     if[not k2q[{enlist`a}]~{[x]enlist `a};fail[]];
