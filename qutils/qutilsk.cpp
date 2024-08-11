@@ -11,6 +11,8 @@
 
 std::unordered_map<std::string,std::string> replaceDict;
 
+thread_local std::string lastError;
+
 extern "C" {
 
 K kerror(const char *err) {
@@ -78,7 +80,8 @@ K winGetFileTime(K fn) {
     try {
         return kj(winGetFileTimeImpl((char*)kC(fn),fn->n));
     } catch(const std::exception &e) {
-        return kerror(e.what());
+        lastError = e.what();
+        return kerror(lastError.c_str());
     }
 }
 
@@ -245,21 +248,31 @@ K xorDecode(K key, K msg) {
 K runProc(K prog, K cmdline) {
     if (prog->t != KC) return kerror("runProc: prog must be string");
     if (cmdline->t != KC) return kerror("runProc: cmdline must be string");
-    std::string progstr((char*)&kC(prog)[0], prog->n);
-    std::string cmdlinestr((char*)&kC(cmdline)[0], cmdline->n);
-    J code;
-    std::string out, err;
-    std::tie(code, out, err) = runProcImpl(progstr.c_str(), cmdlinestr.c_str());
-    return knk(3, ki(code), kpn(out.data(), out.size()), kpn(err.data(), err.size()));
+    try {
+        std::string progstr((char*)&kC(prog)[0], prog->n);
+        std::string cmdlinestr((char*)&kC(cmdline)[0], cmdline->n);
+        J code;
+        std::string out, err;
+        std::tie(code, out, err) = runProcImpl(progstr.c_str(), cmdlinestr.c_str());
+        return knk(3, ki(code), kpn(out.data(), out.size()), kpn(err.data(), err.size()));
+    } catch(const std::exception &e) {
+        lastError = e.what();
+        return kerror(lastError.c_str());
+    }
 }
 
 K runCoProc(K prog, K cmdline) {
     if (prog->t != KC) return kerror("runProc: prog must be string");
     if (cmdline->t != KC) return kerror("runProc: cmdline must be string");
-    std::string progstr((char*)&kC(prog)[0], prog->n);
-    std::string cmdlinestr((char*)&kC(cmdline)[0], cmdline->n);
-    int pid = (int)runCoProcImpl(progstr.c_str(), cmdlinestr.c_str());
-    return ki(pid);
+    try {
+        std::string progstr((char*)&kC(prog)[0], prog->n);
+        std::string cmdlinestr((char*)&kC(cmdline)[0], cmdline->n);
+        int pid = (int)runCoProcImpl(progstr.c_str(), cmdlinestr.c_str());
+        return ki(pid);
+    } catch(const std::exception &e) {
+        lastError = e.what();
+        return kerror(lastError.c_str());
+    }
 }
 
 }

@@ -223,7 +223,7 @@ DWORD __stdcall readDataFromExtProgram(void *params)
             continue;
         }
         if (dwRead == 0) continue;
-        str += chBuf;
+        str.append(chBuf, dwRead);
 
         if (!bSuccess) break;
     }

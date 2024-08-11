@@ -36,3 +36,5 @@ try3:{-105!(x;y;{[z;e;bt]z[e;bt]}[z])};
 .qutils.listarg:{(')[x;enlist]};
 kv:.qutils.listarg[.qutils.kv0];
 .qutils.kvarg:{(')[x;kv]};
+.qutils.dictKeyAsc:{asc[key x]#x};
+.qutils.setDictKeyAsc:{[vn]vn set dictKeyAsc get vn};
