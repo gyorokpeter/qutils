@@ -82,8 +82,9 @@
 .http.wget:{[url]
     cookies:1_string .http.priv.cookieFile;
     if[not ()~key .http.priv.tempFile; hdel .http.priv.tempFile];
-    cmd:"wget -q --content-on-error=on --no-check-certificate --timeout=60 -O ",(1_string .http.priv.tempFile)," --load-cookies ",cookies," --save-cookies ",cookies," \"",url,"\"";
-    system cmd;
+    cmd:"--content-on-error=on --no-check-certificate --timeout=60 -O ",(1_string .http.priv.tempFile)," --load-cookies ",cookies," --save-cookies ",cookies," \"",url,"\"";
+    res:.qutils.runProc["wget";cmd];
+    if[not 0=first res;{'x}"wget failed"];
     `char$read1 .http.priv.tempFile};
 
 .http.wgetIgnoreError:{[url]
@@ -112,3 +113,31 @@
 
 .http.clearCookies:{
     @[hdel;.http.priv.cookieFile;{x}]};
+
+.http.curlRaw:{[url;opts]
+    cmd:"-is ",url;
+    res:.qutils.runProc["curl";cmd];
+    res};
+
+.http.curlResp:{[res]
+    respart:"\r\n\r\n"vs res 1;
+    hdrpart:"\r\n"vs respart 0;
+    codeLineInd:last where hdrpart like "HTTP/*";
+    code:"J"$(" "vs hdrpart codeLineInd)1;
+    hdrLines:(1+codeLineInd)_hdrpart;
+    hdrLineParts:": "vs/:hdrLines;
+    headers:(`,`$ssr[;"-";"_"]each hdrLineParts[;0])!enlist[hdrpart codeLineInd],": "sv/:1_/:hdrLineParts;
+    bodypart:"\r\n\r\n"sv 1_respart;
+    `code`headers`body!(code;headers;bodypart)};
+
+.http.curl:{[url;opts]
+    res:.http.curlRaw[url;opts];
+    if[0<>first res;
+        -2 last res;
+        {'x}"curl failed";
+    ];
+    .http.curlResp res};
+
+.http.curlIgnoreError:{[url;opts]
+    res:.http.curlRaw[url;opts];
+    .http.curlResp res};
