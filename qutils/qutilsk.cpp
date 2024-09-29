@@ -275,6 +275,19 @@ K runCoProc(K prog, K cmdline) {
     }
 }
 
+K sleep(K msec) {
+    uint32_t dwMilliseconds;
+    if (msec->t == -KJ) {
+        dwMilliseconds = msec->j;
+    } else if (msec->t == -KI) {
+        dwMilliseconds = msec->i;
+    } else {
+        kerror("sleep: msec must be int/long");
+    }
+    sleepImpl(dwMilliseconds);
+    return K(0);
+}
+
 }
 /*
 lib:`$":D:/Projects/c++/qutils/qutils";

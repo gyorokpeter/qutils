@@ -338,3 +338,7 @@ void *runCoProcImpl(std::string externalProgram, std::string arguments)
         throw std::runtime_error(niceGetLastError());
     return pi.hProcess;
 }
+
+void sleepImpl(uint32_t msec) {
+    Sleep(msec);
+}
