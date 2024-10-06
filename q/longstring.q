@@ -31,7 +31,14 @@ longstring:{
         if[0<count cols[x] inter .Q.res,key`.q; :"flip[",.z.s[flip x],"]"];
         :"([]",(";"sv string[cols x],'":",/:.z.s each value flip x),")"
     ];
-    if[t=99h; :.z.s[key x],"!",.z.s[value x]];
+    if[t=99h;
+        if[all 98h=type each (xk:key x;xv:value x);
+            if[0=count cols[x] inter .Q.res,key`.q;
+                :"([",(";"sv string[cols xk],'":",/:.z.s each value flip xk),"]"
+                    ,(";"sv string[cols xv],'":",/:.z.s each value flip xv),")";
+            ]
+        ];
+        :.z.s[key x],"!",.z.s[value x]];
     if[t=103h; :string x];
     if[t=104h; v:value x; :.z.s[first v],"[",(";"sv .z.s each 1_v),"]"];
     '"nyi type ",string t};
@@ -59,5 +66,8 @@ longstringTest:{
         ,"2000.01.04 2000.01.04d;0D04:00:00.000000000 0D04:00:00.000000000n;05:00:00 05:00:00v)"; {'x}"failed"];
     if[not longstring[enlist each(1;2p;2000.01.04;4n;5v)]~"(enlist[1j];enlist[2000.01.01D02:00:00.000000000p];enlist[2000.01.04d];"
         ,"enlist[0D04:00:00.000000000n];enlist[05:00:00v])"; {'x}"failed"];
+    if[not longstring[([a:1 2]b:1 2)]~"([a:1 2j]b:1 2j)"; {'x}"failed"];
+    if[not longstring[`any xcol([]a:1 2)!([]b:1 2)]~"flip[enlist[`any]!enlist[1 2j]]!([]b:1 2j)"; {'x}"failed"];
+    if[not longstring[([]a:1 2)!`any xcol([]b:1 2)]~"([]a:1 2j)!flip[enlist[`any]!enlist[1 2j]]"; {'x}"failed"];
     };
 //longstringTest[];
