@@ -115,7 +115,7 @@
     @[hdel;.http.priv.cookieFile;{x}]};
 
 .http.curlRaw:{[url;opts]
-    cmd:"-is ",url;
+    cmd:"-iS ",url;
     res:.qutils.runProc["curl";cmd];
     res};
 
