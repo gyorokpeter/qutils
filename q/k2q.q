@@ -26,6 +26,7 @@
 // Set to false to preserve the binary representation at the cost of less readable code:
 // * replace <: with iasc (in q, iasc is a wrapper function)
 // * remove .q. prefixes (the q parser binds the definition if using the bare name)
+// * replace ' with each (.q.each is a thin wrapper)
 .k2q.replaceKisms:1b;
 
 .k2q.convOps:enlist[(';~:;=)]!enlist[<>];
@@ -111,6 +112,7 @@
               r];
         ];
         if[x~(<:); if[.k2q.replaceKisms;r:"iasc"]];
+        if[x~(,:); if[.k2q.replaceKisms;r:"enlist"]];
         if[not first[r]within"az";if[mode in`binaryLeftArg`binaryRightArg; r:"(",r,")"]];
         if[x~(::); if[mode=`free; :""]];
         :r;
@@ -152,12 +154,24 @@
             if[mode<>`binaryOperator;if[not null name:.q?(@). x;
                 :string name;
             ]];
-            if[isIter; :.k2q.join[.k2q.unparse0[ns;locals;`iterable;last x];.k2q.unparse0[ns;locals;`constant;first x]]];
+            needBrackets:mode=`binaryLeftArg;
+            if[(')~first x;if[mode<>`binaryOperator;if[.k2q.replaceKisms;
+                x[0]:`.q.each;
+                needBrackets:mode in`iterable`binaryLeftArg;
+            ]]];
+            if[isIter;
+                r:.k2q.join[.k2q.unparse0[ns;locals;`iterable;last x];.k2q.unparse0[ns;locals;`constant;first x]];
+                if[needBrackets;r:"(",r,")"];
+                :r;
+            ];
         ];
         needBrackets:0b;
         if[0h=tfx;
             tfxx:type first first x;    //e.g. ((/;&);`j) -> and/[j]
             if[103h=tfxx;
+                if[(')~first first x;if[.k2q.replaceKisms;
+                    :.k2q.unparse0[ns;locals;mode;(`.q.each;last first x;last x)];
+                ]];
                 needBrackets:1b;
                 if[.k2q.isVersus[first x];  //rephrase as q, since k parses /: \: as iterators even when used as sv/vs
                     :.k2q.unparse0[ns;locals;mode;(((/:;\:)!(sv;vs))first first x;last first x;last x)];
@@ -169,6 +183,13 @@
         ];
         if[mode in`indexable`iterable`binaryLeftArg; needBrackets:1b];
         isBinary:102h=tfx;
+        if[-11h=tfx;if[first[x]like".q.*";if[.k2q.replaceKisms;
+            fn:value first x;
+            isBinary:$[100h=type fn;2=count value[value first x][1];
+                101h=type fn;0b;
+                102h=type fn;1b;
+                {'x}"nyi"];
+        ]]];
         if[100h=tfx;
             if[not null c:.q?first x;
                 if[c in `sv`vs; needBrackets:0b];
@@ -183,7 +204,7 @@
                     .k2q.join[$[isEnlist;"enlist";.k2q.unparse0[ns;locals;`indexable;first x]];.k2q.unparse0[ns;locals;`binaryRightArg;last x]]
                 ]
             ];
-            if[mode in`indexable`iterable; r:"(",r,")"];
+            if[mode in`indexable`iterable`binaryLeftArg; r:"(",r,")"];
             :r;
         ];
     ];
@@ -207,7 +228,7 @@
             comma:first[x]~(,);
         ];
         if[tfx=-11h; if[x[0] like ".q.*";if[.k2q.replaceKisms;
-            x[0]:value x[0];
+            x:value[x 0],1_x;
             tfx:type first x;
         ]]];
         if[100h=tfx;
@@ -327,13 +348,13 @@ k2q:{
     if[not .k2q.unparse[(';`f;`g)]~"(')[f;g]"; fail[]];
     if[not .k2q.unparse[(`x;(';`f;`g))]~"x(')[f;g]"; fail[]];
     if[not .k2q.unparse[((';(';`f;`g));`x;`y)]~"x(')[f;g]'y"; fail[]];
-    if[not .k2q.unparse[(';(';*:;$:))]~"(')[first;string]'"; fail[]];
-    if[not .k2q.unparse[((';(';*:;$:));`x)]~"(')[first;string]'[x]"; fail[]];
+    if[not .k2q.unparse[(';(';*:;$:))]~"(')[first;string]each"; fail[]];
+    if[not .k2q.unparse[((';(';*:;$:));`x)]~"(')[first;string]each x"; fail[]];
     if[not .k2q.unparse[((';_);`x;`y)]~"x _'y"; fail[]];
     if[not .k2q.unparse[((';`f);`x;`y)]~"x f'y"; fail[]];
     if[not .k2q.unparse[((';`f);`y;(`d;`i))]~"y f'd i"; fail[]];
     if[not .k2q.unparse[parse"k){x+y}"]~"{[x;y]x+y}"; fail[]];
-    if[not .k2q.unparse[parse"k){x+y}'"]~"{[x;y]x+y}'"; fail[]];
+    if[not .k2q.unparse[parse"k){x+y}'"]~"{[x;y]x+y}each"; fail[]];
     if[not .k2q.unparse[parse"k){x+y}z"]~"{[x;y]x+y}z"; fail[]];
     if[not .k2q.unparse[parse"k){x+y}[z;a]"]~"{[x;y]x+y}[z;a]"; fail[]];
     if[not .k2q.unparse[((_;`f;`y);(#:;`x))]~"(f _ y)count x"; fail[]];
@@ -349,18 +370,33 @@ k2q:{
     if[not .k2q.unparse[(::;`x;`y)]~"x::y"; fail[]];
     if[not .k2q.unparse[(":";`x)]~":x"; fail[]];
     if[not .k2q.unparse[(":";::)]~":(::)"; fail[]];
+    if[not .k2q.unparse[(,:;::)]~"enlist[]"; fail[]];
     if[not .k2q.unparse[(@:;`a;1)]~"a@:1j"; fail[]];
     if[not .k2q.unparse[(each;count;`x)]~"count each x"; fail[]];
     if[not .k2q.unparse[(each;enlist;`x)]~"enlist each x"; fail[]];
     if[not .k2q.unparse[(/:;#)]~"#/:"; fail[]];
     if[not .k2q.unparse[((/:;#);1;`x)]~"1j#/:x"; fail[]];
     if[not .k2q.unparse[((/:;$);(*;`x;`y);`y)]~"(x*y)$/:y"; fail[]];
-    if[not .k2q.unparse[(';(';#:))]~"count''"; fail[]];
+    if[not .k2q.unparse[`.q.show`x]~"show x"; fail[]]; //unary lambda
+    if[not .k2q.unparse[`.q.xkey`x]~"x xkey"; fail[]]; //binary lambda
+    if[not .k2q.unparse[`.q.count`x]~"count x"; fail[]]; //unary operator
+    if[not .k2q.unparse[`.q.or`x]~"x or"; fail[]]; //binary operator
     };
 
 .k2q.unittest2:{
     fail:{'"failed"};
-    if[not .k2q.unparse[((';(';#:));`y)]~"count''[y]"; fail[]];
+    if[not .k2q.unparse[(';#:)]~"count each"; fail[]];
+    if[not .k2q.unparse[(';`f)]~"f each"; fail[]];
+    if[not .k2q.unparse0[`;`$();`binaryLeftArg;(';#:)]~"(count each)"; fail[]];
+    if[not .k2q.unparse0[`;`$();`iterable;(';#:)]~"(count each)"; fail[]];
+    if[not .k2q.unparse0[`;`$();`binaryOperator;(';#)]~"#'"; fail[]];
+    if[not .k2q.unparse[((';#:);`x)]~"count each x"; fail[]];
+    if[not .k2q.unparse[((';`f);`x)]~"f each x"; fail[]];
+    if[not .k2q.unparse[(';(';#:))]~"(count each)each"; fail[]];
+    if[not .k2q.unparse[((';(';#:));`y)]~"(count each)each y"; fail[]];
+    if[not .k2q.unparse[(/;`f)]~"f/"; fail[]];
+    if[not .k2q.unparse0[`;`$();`binaryLeftArg;(/;`f)]~"(f/)"; fail[]];
+    if[not .k2q.unparse[((';(/;`f));`g)]~"(f/)each g"; fail[]];
     if[not .k2q.unparse[(?;enlist `a`b`c;`d)]~"`a`b`c?d"; fail[]];
     if[not .k2q.unparse[((&:;`x);`y)]~"where[x]y"; fail[]];
     if[not .k2q.unparse[("ABCD";`x)]~"\"ABCD\"x"; fail[]];
@@ -369,7 +405,7 @@ k2q:{
     if[not .k2q.unparse[(enlist`.;`x)]~"`. x"; fail[]];
     if[not .k2q.unparse[(.;?;`x)]~"(?). x"; fail[]];
     if[not .k2q.unparse[(<:;3 2 1)]~"iasc 3 2 1j"; fail[]];
-    if[not .k2q.unparse[(';(`f;`x))]~"f[x]'"; fail[]];
+    if[not .k2q.unparse[(';(`f;`x))]~"f[x]each"; fail[]];
     if[not .k2q.unparse[parse"P[i](;)'y"]~"P[i](;)'y"; fail[]];
     if[not .k2q.unparse[parse"aj"]~"aj"; fail[]];
     if[not .k2q.unparse[parse"\" \"sv"]~"\" \"sv"; fail[]];
@@ -378,11 +414,12 @@ k2q:{
     if[not .k2q.unparse[((\:;enlist `);`f)]~"` vs f"; fail[]];
     if[not .k2q.unparse[parse"` vs"]~"` vs"; fail[]];
     if[not .k2q.unparse0[`;`$();`iterable;parse"` vs"]~"(` vs)"; fail[]];
+    if[not .k2q.unparse0[`;`$();`binaryLeftArg;parse"` vs"]~"(` vs)"; fail[]];
     if[not .k2q.unparse[(\:;enlist `)]~"` vs"; fail[]];
-    if[not .k2q.unparse[parse"(` vs)'"]~"(` vs)'"; fail[]];
-    if[not .k2q.unparse[(';(\:;enlist `))]~"(` vs)'"; fail[]];
-    if[not .k2q.unparse[parse"(` vs)'[`a.b`a.c]"]~"(` vs)'[`a.b`a.c]"; fail[]];
-    if[not .k2q.unparse[((';(\:;enlist `));enlist `a.b`a.c)]~"(` vs)'[`a.b`a.c]"; fail[]];
+    if[not .k2q.unparse[parse"(` vs)'"]~"(` vs)each"; fail[]];
+    if[not .k2q.unparse[(';(\:;enlist `))]~"(` vs)each"; fail[]];
+    if[not .k2q.unparse[parse"(` vs)'[`a.b`a.c]"]~"(` vs)each `a.b`a.c"; fail[]];
+    if[not .k2q.unparse[((';(\:;enlist `));enlist `a.b`a.c)]~"(` vs)each `a.b`a.c"; fail[]];
     if[not .k2q.unparse[(?;`t;();();())]~"exec from t"; fail[]];
     if[not .k2q.unparse[(?;`t;();();enlist(~:;`a))]~"exec not a from t"; fail[]];
     if[not .k2q.unparse[(?;`t;();0b;`a`b`c!`a`b`c)]~"select a,b,c from t"; fail[]];
@@ -443,6 +480,8 @@ k2q:{
 .k2q.unittest:{
     .k2q.unittest1[];
     .k2q.unittest2[];
+    k2q each .Q;
+    k2q each .h;
     };
 
 //.k2q.unittest[];
