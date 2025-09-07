@@ -1,13 +1,9 @@
-cls
-@call config.cmd
-@if not exist ..\libq.a (
-    echo create ..\libq.a as per https://code.kx.com/q/interfaces/using-c-functions/#windows-mingw-64
-    exit /b 1
-)
-g++ -o ../poly2tri2.dll -shared poly2tri_k.cpp ^
-    %POLY2TRI_PATH%/poly2tri/common/shapes.cc ^
-    %POLY2TRI_PATH%/poly2tri/sweep/cdt.cc ^
-    %POLY2TRI_PATH%/poly2tri/sweep/sweep.cc ^
-    %POLY2TRI_PATH%/poly2tri/sweep/sweep_context.cc ^
-    %POLY2TRI_PATH%/poly2tri/sweep/advancing_front.cc ^
-    -I.. -I%POLY2TRI_PATH%/poly2tri -I%KX_KDB_PATH%/c/c -L.. -lq -static
+setlocal
+
+set "OLDPATH=%PATH%
+
+@set "PATH=D:\msys64\mingw32\bin;%OLDPATH%"
+@call b32.cmd || exit /b 1
+
+@set "PATH=D:\msys64\mingw64\bin;%OLDPATH%"
+@call b64.cmd

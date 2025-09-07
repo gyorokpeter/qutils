@@ -1,4 +1,6 @@
 *.dll
 libq.a
+libq64.a
 config.cmd
 shell.cmd
+img/testImg

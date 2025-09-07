@@ -1,1 +1,3 @@
+set MINGW32_PATH=D:\msys64\mingw32\bin
+set MINGW64_PATH=D:\msys64\mingw64\bin
 set KX_KDB_PATH=D:/path/to/kxSystems/kdb

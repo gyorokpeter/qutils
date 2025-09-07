@@ -267,8 +267,8 @@ K runCoProc(K prog, K cmdline) {
     try {
         std::string progstr((char*)&kC(prog)[0], prog->n);
         std::string cmdlinestr((char*)&kC(cmdline)[0], cmdline->n);
-        int pid = (int)runCoProcImpl(progstr.c_str(), cmdlinestr.c_str());
-        return ki(pid);
+        J pid = runCoProcImpl(progstr.c_str(), cmdlinestr.c_str());
+        return kj(pid);
     } catch(const std::exception &e) {
         lastError = e.what();
         return kerror(lastError.c_str());

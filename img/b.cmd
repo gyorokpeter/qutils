@@ -1,7 +1,9 @@
-cls
-@call config.cmd
-@if not exist ..\libq.a (
-    echo create ..\libq.a as per https://code.kx.com/q/interfaces/using-c-functions/#windows-mingw-64
-    exit /b 1
-)
-g++ -shared imgk.cpp -I%KX_KDB_PATH%/c/c -L.. -lq -o ../img.dll -static
+setlocal
+
+set "OLDPATH=%PATH%
+
+@set "PATH=D:\msys64\mingw32\bin;%OLDPATH%"
+@call b32.cmd || exit /b 1
+
+@set "PATH=D:\msys64\mingw64\bin;%OLDPATH%"
+@call b64.cmd

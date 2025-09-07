@@ -1,6 +1,6 @@
 {
     path:"/"sv -2_"/"vs ssr[;"\\";"/"]first -3#value .z.s;
-    .qutils.priv.lib:`$":",path,"/qutils";
+    .qutils.priv.lib:`$":",path,"/qutils_",string[.z.o];
     .qutils.setReplaceDict:.qutils.priv.lib 2:(`setReplaceDict;1);
     .qutils.textReplace:.qutils.priv.lib 2:(`textReplace;1);
     .qutils.setFileTime:.qutils.priv.lib 2:(`winSetFileTime;2);

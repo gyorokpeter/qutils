@@ -1,6 +1,11 @@
+setlocal
+
+set "OLDPATH=%PATH%
+
 @call config.cmd
-@if not exist ..\libq.a (
-    echo create ..\libq.a as per https://code.kx.com/q/interfaces/using-c-functions/#windows-mingw-64
-    exit /b 1
-)
-g++ -shared zlibk.cpp -I%KX_KDB_PATH%/c/c -L.. -lq -lz -o ../zlibk.dll -static
+
+@set "PATH=%MINGW32_PATH%;%OLDPATH%"
+@call b32.cmd || exit /b 1
+
+@set "PATH=%MINGW64_PATH%;%OLDPATH%"
+@call b64.cmd

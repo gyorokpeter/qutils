@@ -9,5 +9,5 @@ bool winSetFileTimeImpl(const char *fileName, uint32_t length, uint64_t fileTime
 
 uint64_t getChinaTimeImpl();
 std::tuple<int,std::string,std::string> runProcImpl(std::string externalProgram, std::string arguments);
-void *runCoProcImpl(std::string externalProgram, std::string arguments);
+uint64_t runCoProcImpl(std::string externalProgram, std::string arguments);
 void sleepImpl(uint32_t msec);

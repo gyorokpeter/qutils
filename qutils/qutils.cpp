@@ -308,7 +308,7 @@ std::tuple<int,std::string,std::string> runProcImpl(std::string externalProgram,
     return {exitCode, streamOut.str, streamErr.str};
 }
 
-void *runCoProcImpl(std::string externalProgram, std::string arguments)
+uint64_t runCoProcImpl(std::string externalProgram, std::string arguments)
 {
     PROCESS_INFORMATION pi;
     STARTUPINFO si;
@@ -336,7 +336,7 @@ void *runCoProcImpl(std::string externalProgram, std::string arguments)
         &pi)                            // Pointer to PROCESS_INFORMATION structure
         )
         throw std::runtime_error(niceGetLastError());
-    return pi.hProcess;
+    return (uint64_t)pi.hProcess;
 }
 
 void sleepImpl(uint32_t msec) {

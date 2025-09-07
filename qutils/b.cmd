@@ -1,8 +1,9 @@
 setlocal
-cls
-call config.cmd
-@if not exist ..\libq.a (
-    echo create ..\libq.a using ..\make_libq.cmd
-    exit /b 1
-)
-g++ -shared qutils.cpp qutilsk.cpp -I%KX_KDB_PATH%/c/c -L.. -lq -o ../qutils.dll -static
+
+set "OLDPATH=%PATH%
+
+@set "PATH=D:\msys64\mingw32\bin;%OLDPATH%"
+@call b32.cmd || exit /b 1
+
+@set "PATH=D:\msys64\mingw64\bin;%OLDPATH%"
+@call b64.cmd

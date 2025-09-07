@@ -429,7 +429,6 @@ k2q:{
     if[not k2q[\:[value"k){x}"]]~(\:)[{[x]x}];fail[]];
     if[not k2q[value"k){.q.set[`.q.abs;.q.abs]}"]~{[x]`.q.abs set abs};fail[]];
     if[not k2q[value"k){.q.count[x]}"]~{[x]count x};fail[]];
-    if[not k2q[value"k){.q.count[x]}"]~{[x]count x};fail[]];
     if[not k2q[value"k){(,1)~x}"]~{[x]enlist[1j]~x};fail[]];
     if[not k2q[.k2q.mkLambda[`evil]{if 1b;a:1;x+a+b}]~{[x]if 1b;a:1j;x+a+.evil.b};fail[]];
     if[not k2q[.k2q.mkLambda[`evil]{while[l:1;l]}]~{[x]while[l:1j;l]};fail[]];
