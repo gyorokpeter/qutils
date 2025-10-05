@@ -2,6 +2,13 @@
 
 longstring:{
     t:type x;
+    validsym:{s:string x;
+        if[0=count x;:1b];
+        if[any not s in"./0123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";:0b];
+        if["_"=first s;:0b];
+        colon:s?":";
+        if[any "/"=colon#s;:0b];
+        1b};
     if[t in 100 101 102 105h; :string[x]];
     if[t in 0 77h; :$[1=count x;"enlist[",.z.s[first x],"]";"(",(";"sv .z.s each x),")"]];
     if[t=-1h; :string[x],"b"];
@@ -11,7 +18,7 @@ longstring:{
     if[t in -12 -14 -15 -16 -17 -18h; :$[null x;"0N";string[x]],$[.qutils.longstringAddSuffixes or null x;.Q.t[abs t];""]];
     if[t=-7h; :$[null x;"0N";string[x]],$[.qutils.longstringAddSuffixes;"j";""]];
     if[t in -8 -9h; :$[null x;"0n";string[x]],.Q.t[abs t]];
-    if[t=-11h; :"`",string[x]];
+    if[t=-11h; :$[validsym x;"`",string[x];"`$",.z.s string x]];
     if[t in 1 5 6 7 12 13 14 15 16 17 18 19h;
         :$[0=count x;"`",string[key x],"$()";
            1=count x;"enlist[",.z.s[first x],"]";
@@ -31,15 +38,19 @@ longstring:{
     if[t=10h; :"\"",ssr/[x;("\\";"\"";"\r";"\n";"\t");("\\\\";"\\\"";"\\r";"\\n";"\\t")],"\""];
     if[t=11h;
         if[0=count x; :"(`$())"];
-        :$[1=count x;"enlist[",.z.s[first x],"]";raze"`",/:string[x]]
+        if[1=count x; :"enlist[",.z.s[first x],"]"];
+        if[all validsym each x; :raze"`",/:string[x]];
+        :"(",(";"sv .z.s each x),")"
     ];
     if[t=98h;
-        if[0<count cols[x] inter .Q.res,key`.q; :"flip[",.z.s[flip x],"]"];
+        cs:cols x;
+        if[(0<count cs inter .Q.res,key`.q)or not all validsym each cs; :"flip[",.z.s[flip x],"]"];
         :"([]",(";"sv string[cols x],'":",/:.z.s each value flip x),")"
     ];
     if[t=99h;
         if[all 98h=type each (xk:key x;xv:value x);
-            if[0=count cols[x] inter .Q.res,key`.q;
+            cs:cols[x];
+            if[(0=count cs inter .Q.res,key`.q)and all validsym each cs;
                 :"([",(";"sv string[cols xk],'":",/:.z.s each value flip xk),"]"
                     ,(";"sv string[cols xv],'":",/:.z.s each value flip xv),")";
             ]
@@ -93,5 +104,20 @@ longstringTest:{
     if[not longstring[([a:1 2]b:1 2)]~"([a:1 2j]b:1 2j)"; {'x}"failed"];
     if[not longstring[`any xcol([]a:1 2)!([]b:1 2)]~"flip[enlist[`any]!enlist[1 2j]]!([]b:1 2j)"; {'x}"failed"];
     if[not longstring[([]a:1 2)!`any xcol([]b:1 2)]~"([]a:1 2j)!flip[enlist[`any]!enlist[1 2j]]"; {'x}"failed"];
+    if[not longstring[`abc]~"`abc"; {'x}"failed"];
+    if[not longstring[`]~enlist"`"; {'x}"failed"];
+    if[not longstring[`$"hello world"]~"`$\"hello world\""; {'x}"failed"];
+    if[not longstring[`$"hello\"world"]~"`$\"hello\\\"world\""; {'x}"failed"];
+    if[not longstring[`$"_"]~"`$\"_\""; {'x}"failed"];
+    if[not longstring[`$"/"]~"`$\"/\""; {'x}"failed"];
+    if[not longstring[`$":/"]~"`:/"; {'x}"failed"];
+    if[not longstring[`$"a/:/"]~"`$\"a/:/\""; {'x}"failed"];
+    if[not longstring[`$"a:/:/"]~"`a:/:/"; {'x}"failed"];
+    if[not longstring[`a`b`c]~"`a`b`c"; {'x}"failed"];
+    if[not longstring[enlist`$"a/:/"]~"enlist[`$\"a/:/\"]"; {'x}"failed"];
+    if[not longstring[enlist`$"a:/:/"]~"enlist[`a:/:/]"; {'x}"failed"];
+    if[not longstring[(`a;`b;`$"hello world";`;`$"a/:/";`$"a:/:/")]~"(`a;`b;`$\"hello world\";`;`$\"a/:/\";`a:/:/)"; {'x}"failed"];
+    if[not longstring[(`$"hello world")xcol([]a:1 2)]~"flip[enlist[`$\"hello world\"]!enlist[1 2j]]"; {'x}"failed"];
+    if[not longstring[(`$"hello world")xcol([]a:1 2)!([]b:1 2)]~"flip[enlist[`$\"hello world\"]!enlist[1 2j]]!([]b:1 2j)"; {'x}"failed"];
     };
 //longstringTest[];
