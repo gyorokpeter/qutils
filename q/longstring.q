@@ -1,4 +1,5 @@
 .qutils.longstringAddSuffixes:1b;
+.qutils.longstring41dict:.z.K>=4.1;
 
 longstring:{
     t:type x;
@@ -8,6 +9,11 @@ longstring:{
         if["_"=first s;:0b];
         colon:s?":";
         if[any "/"=colon#s;:0b];
+        1b};
+    validId:{if[x in .Q.res,key`.q;:0b];
+        s:string x;
+        if[any not s in .Q.an;:0b];
+        if[first[s] in "_0123456789";:0b];
         1b};
     if[t in 100 101 102 105h; :string[x]];
     if[t in 0 77h; :$[1=count x;"enlist[",.z.s[first x],"]";"(",(";"sv .z.s each x),")"]];
@@ -44,16 +50,21 @@ longstring:{
     ];
     if[t=98h;
         cs:cols x;
-        if[(0<count cs inter .Q.res,key`.q)or not all validsym each cs; :"flip[",.z.s[flip x],"]"];
+        if[not all validId each cs; :"flip[",.z.s[flip x],"]"];
         :"([]",(";"sv string[cols x],'":",/:.z.s each value flip x),")"
     ];
     if[t=99h;
         if[all 98h=type each (xk:key x;xv:value x);
             cs:cols[x];
-            if[(0=count cs inter .Q.res,key`.q)and all validsym each cs;
+            if[all validId each cs;
                 :"([",(";"sv string[cols xk],'":",/:.z.s each value flip xk),"]"
                     ,(";"sv string[cols xv],'":",/:.z.s each value flip xv),")";
             ]
+        ];
+        if[.qutils.longstring41dict;
+            if[11h=type[key x];if[all validId each key x;
+                :"([",(";"sv string[key x],'":",/:.z.s each value x),"])";
+            ]];
         ];
         :.z.s[key x],"!",.z.s[value x]];
     if[t=103h; :string x];
@@ -61,63 +72,76 @@ longstring:{
     '"nyi type ",string t};
 
 longstringTest:{
-    if[not longstring[0Ng]~"0Ng"; {'x}"failed"];
-    if[not longstring["G"$"12345678-abcd-1234-abcd-123456789abc"]~"\"G\"$\"12345678-abcd-1234-abcd-123456789abc\""; {'x}"failed"];
-    if[not longstring[`guid$()]~"`guid$()"; {'x}"failed"];
-    if[not longstring[enlist 0Ng]~"enlist[0Ng]"; {'x}"failed"];
-    if[not longstring[0N 0Ng]~"0N 0Ng"; {'x}"failed"];
-    if[not longstring[0N 0N 0Ng]~"0N 0N 0Ng"; {'x}"failed"];
-    if[not longstring[enlist"G"$"12345678-abcd-1234-abcd-123456789abc"]~"enlist[\"G\"$\"12345678-abcd-1234-abcd-123456789abc\"]"; {'x}"failed"];
+    fail:{'"failed"};
+    if[not longstring[0Ng]~"0Ng";fail[]];
+    if[not longstring["G"$"12345678-abcd-1234-abcd-123456789abc"]~"\"G\"$\"12345678-abcd-1234-abcd-123456789abc\"";fail[]];
+    if[not longstring[`guid$()]~"`guid$()";fail[]];
+    if[not longstring[enlist 0Ng]~"enlist[0Ng]";fail[]];
+    if[not longstring[0N 0Ng]~"0N 0Ng";fail[]];
+    if[not longstring[0N 0N 0Ng]~"0N 0N 0Ng";fail[]];
+    if[not longstring[enlist"G"$"12345678-abcd-1234-abcd-123456789abc"]~"enlist[\"G\"$\"12345678-abcd-1234-abcd-123456789abc\"]";fail[]];
     if[not longstring["G"$("12345678-abcd-1234-abcd-123456789abc";"87654321-dcba-4321-dcba-cba987654321")]~
-        "\"G\"$(\"12345678-abcd-1234-abcd-123456789abc\";\"87654321-dcba-4321-dcba-cba987654321\")"; {'x}"failed"];
-    if[not longstring[0101b]~"0101b"; {'x}"failed"];
-    if[not longstring[enlist 0Ni]~"enlist[0Ni]"; {'x}"failed"];
-    if[not longstring[([]a:enlist 0Ni)]~"([]a:enlist[0Ni])"; {'x}"failed"];
-    if[not longstring[/]~enlist"/"; {'x}"failed"];
-    if[not longstring["\\w"]~"\"\\\\w\""; {'x}"failed"];
+        "\"G\"$(\"12345678-abcd-1234-abcd-123456789abc\";\"87654321-dcba-4321-dcba-cba987654321\")";fail[]];
+    if[not longstring[0101b]~"0101b";fail[]];
+    if[not longstring[enlist 0Ni]~"enlist[0Ni]";fail[]];
+    if[not longstring[([]a:enlist 0Ni)]~"([]a:enlist[0Ni])";fail[]];
+    if[not longstring[/]~enlist"/";fail[]];
+    if[not longstring["\\w"]~"\"\\\\w\"";fail[]];
 
     .qutils.longstringAddSuffixes:0b;
     if[not longstring[(1;2001.01m;2p;2000.01.04T;2000.01.04;4n;4u;5v)]~
-        "(1;2001.01m;2000.01.01D02:00:00.000000000;2000.01.04T00:00:00.000;2000.01.04;0D04:00:00.000000000;04:00;05:00:00)"; {'x}"failed"];
-    if[not longstring[(0N;0Np;0Nz;0Nm;0Nd;0Nn;0Nu;0Nv)]~"(0N;0Np;0Nz;0Nm;0Nd;0Nn;0Nu;0Nv)"; {'x}"failed"];
-    if[not longstring[(0N 0N;0N 0Nm;0N 0Np;0N 0Nz;0N 0Nd;0N 0Nn;0N 0Nu;0N 0Nv)]~"(0N 0N;0N 0Nm;0N 0Np;0N 0Nz;0N 0Nd;0N 0Nn;0N 0Nu;0N 0Nv)"; {'x}"failed"];
+        "(1;2001.01m;2000.01.01D02:00:00.000000000;2000.01.04T00:00:00.000;2000.01.04;0D04:00:00.000000000;04:00;05:00:00)";fail[]];
+    if[not longstring[(0N;0Np;0Nz;0Nm;0Nd;0Nn;0Nu;0Nv)]~"(0N;0Np;0Nz;0Nm;0Nd;0Nn;0Nu;0Nv)";fail[]];
+    if[not longstring[(0N 0N;0N 0Nm;0N 0Np;0N 0Nz;0N 0Nd;0N 0Nn;0N 0Nu;0N 0Nv)]~"(0N 0N;0N 0Nm;0N 0Np;0N 0Nz;0N 0Nd;0N 0Nn;0N 0Nu;0N 0Nv)";fail[]];
     if[not longstring[enlist each(0N;0Nm;0Np;0Nz;0Nd;0Nn;0Nu;0Nv)]~"(enlist[0N];enlist[0Nm];enlist[0Np];enlist[0Nz];enlist[0Nd];enlist[0Nn];"
-        ,"enlist[0Nu];enlist[0Nv])"; {'x}"failed"];
+        ,"enlist[0Nu];enlist[0Nv])";fail[]];
     if[not longstring[enlist each(1;2001.01m;2p;2000.01.04T;2000.01.04;4n;4u;5v)]~"(enlist[1];enlist[2001.01m];enlist[2000.01.01D02:00:00.000000000];"
-        ,"enlist[2000.01.04T00:00:00.000];enlist[2000.01.04];enlist[0D04:00:00.000000000];enlist[04:00];enlist[05:00:00])"; {'x}"failed"];
+        ,"enlist[2000.01.04T00:00:00.000];enlist[2000.01.04];enlist[0D04:00:00.000000000];enlist[04:00];enlist[05:00:00])";fail[]];
     if[not longstring[2#/:(1;2001.01m;2p;2000.01.04T;2000.01.04;4n;4u;5v)]~"(1 1;2001.01 2001.01m;2000.01.01D02:00:00.000000000 2000.01.01D02:00:00.000000000;"
         ,"2000.01.04T00:00:00.000 2000.01.04T00:00:00.000;2000.01.04 2000.01.04;0D04:00:00.000000000 0D04:00:00.000000000;04:00 04:00;"
-        ,"05:00:00 05:00:00)"; {'x}"failed"];
+        ,"05:00:00 05:00:00)";fail[]];
 
     .qutils.longstringAddSuffixes:1b;
     if[not longstring[(1;2001.01m;2p;2000.01.04T;2000.01.04;4n;4u;5v)]~"(1j;2001.01m;2000.01.01D02:00:00.000000000p;2000.01.04T00:00:00.000z;"
-        ,"2000.01.04d;0D04:00:00.000000000n;04:00u;05:00:00v)"; {'x}"failed"];
-    if[not longstring[(0N 0N;0N 0Nm;0N 0Np;0N 0Nz;0N 0Nd;0N 0Nn;0N 0Nu;0N 0Nv)]~"(0N 0Nj;0N 0Nm;0N 0Np;0N 0Nz;0N 0Nd;0N 0Nn;0N 0Nu;0N 0Nv)"; {'x}"failed"];
+        ,"2000.01.04d;0D04:00:00.000000000n;04:00u;05:00:00v)";fail[]];
+    if[not longstring[(0N 0N;0N 0Nm;0N 0Np;0N 0Nz;0N 0Nd;0N 0Nn;0N 0Nu;0N 0Nv)]~"(0N 0Nj;0N 0Nm;0N 0Np;0N 0Nz;0N 0Nd;0N 0Nn;0N 0Nu;0N 0Nv)";fail[]];
     if[not longstring[enlist each(0N;0Nm;0Np;0Nz;0Nd;0Nn;0Nu;0Nv)]~"(enlist[0Nj];enlist[0Nm];enlist[0Np];enlist[0Nz];enlist[0Nd];enlist[0Nn];enlist[0Nu];"
-        ,"enlist[0Nv])"; {'x}"failed"];
+        ,"enlist[0Nv])";fail[]];
     if[not longstring[enlist each(1;2001.01m;2p;2000.01.04T;2000.01.04;4n;4u;5v)]~"(enlist[1j];enlist[2001.01m];enlist[2000.01.01D02:00:00.000000000p];"
-        ,"enlist[2000.01.04T00:00:00.000z];enlist[2000.01.04d];enlist[0D04:00:00.000000000n];enlist[04:00u];enlist[05:00:00v])"; {'x}"failed"];
+        ,"enlist[2000.01.04T00:00:00.000z];enlist[2000.01.04d];enlist[0D04:00:00.000000000n];enlist[04:00u];enlist[05:00:00v])";fail[]];
     if[not longstring[2#/:(1;2001.01m;2p;2000.01.04T;2000.01.04;4n;4u;5v)]~"(1 1j;2001.01 2001.01m;2000.01.01D02:00:00.000000000 2000.01.01D02:00:00.000000000p;"
         ,"2000.01.04T00:00:00.000 2000.01.04T00:00:00.000z;2000.01.04 2000.01.04d;0D04:00:00.000000000 0D04:00:00.000000000n;04:00 04:00u;"
-        ,"05:00:00 05:00:00v)"; {'x}"failed"];
+        ,"05:00:00 05:00:00v)";fail[]];
 
-    if[not longstring[([a:1 2]b:1 2)]~"([a:1 2j]b:1 2j)"; {'x}"failed"];
-    if[not longstring[`any xcol([]a:1 2)!([]b:1 2)]~"flip[enlist[`any]!enlist[1 2j]]!([]b:1 2j)"; {'x}"failed"];
-    if[not longstring[([]a:1 2)!`any xcol([]b:1 2)]~"([]a:1 2j)!flip[enlist[`any]!enlist[1 2j]]"; {'x}"failed"];
-    if[not longstring[`abc]~"`abc"; {'x}"failed"];
-    if[not longstring[`]~enlist"`"; {'x}"failed"];
-    if[not longstring[`$"hello world"]~"`$\"hello world\""; {'x}"failed"];
-    if[not longstring[`$"hello\"world"]~"`$\"hello\\\"world\""; {'x}"failed"];
-    if[not longstring[`$"_"]~"`$\"_\""; {'x}"failed"];
-    if[not longstring[`$"/"]~"`$\"/\""; {'x}"failed"];
-    if[not longstring[`$":/"]~"`:/"; {'x}"failed"];
-    if[not longstring[`$"a/:/"]~"`$\"a/:/\""; {'x}"failed"];
-    if[not longstring[`$"a:/:/"]~"`a:/:/"; {'x}"failed"];
-    if[not longstring[`a`b`c]~"`a`b`c"; {'x}"failed"];
-    if[not longstring[enlist`$"a/:/"]~"enlist[`$\"a/:/\"]"; {'x}"failed"];
-    if[not longstring[enlist`$"a:/:/"]~"enlist[`a:/:/]"; {'x}"failed"];
-    if[not longstring[(`a;`b;`$"hello world";`;`$"a/:/";`$"a:/:/")]~"(`a;`b;`$\"hello world\";`;`$\"a/:/\";`a:/:/)"; {'x}"failed"];
-    if[not longstring[(`$"hello world")xcol([]a:1 2)]~"flip[enlist[`$\"hello world\"]!enlist[1 2j]]"; {'x}"failed"];
-    if[not longstring[(`$"hello world")xcol([]a:1 2)!([]b:1 2)]~"flip[enlist[`$\"hello world\"]!enlist[1 2j]]!([]b:1 2j)"; {'x}"failed"];
+    if[not longstring[flip`a`b`:c!(1 2;3 4;5 6)]~"flip[`a`b`:c!(1 2j;3 4j;5 6j)]";fail[]];
+    if[not longstring[([a:1 2]b:1 2)]~"([a:1 2j]b:1 2j)";fail[]];
+    if[not longstring[`any xcol([]a:1 2)!([]b:1 2)]~"flip[enlist[`any]!enlist[1 2j]]!([]b:1 2j)";fail[]];
+    if[not longstring[([]a:1 2)!`any xcol([]b:1 2)]~"([]a:1 2j)!flip[enlist[`any]!enlist[1 2j]]";fail[]];
+    if[not longstring[`abc]~"`abc";fail[]];
+    if[not longstring[`]~enlist"`";fail[]];
+    if[not longstring[`$"hello world"]~"`$\"hello world\"";fail[]];
+    if[not longstring[`$"hello\"world"]~"`$\"hello\\\"world\"";fail[]];
+    if[not longstring[`$"_"]~"`$\"_\"";fail[]];
+    if[not longstring[`$"/"]~"`$\"/\"";fail[]];
+    if[not longstring[`$":/"]~"`:/";fail[]];
+    if[not longstring[`$"a/:/"]~"`$\"a/:/\"";fail[]];
+    if[not longstring[`$"a:/:/"]~"`a:/:/";fail[]];
+    if[not longstring[`a`b`c]~"`a`b`c";fail[]];
+    if[not longstring[enlist`$"a/:/"]~"enlist[`$\"a/:/\"]";fail[]];
+    if[not longstring[enlist`$"a:/:/"]~"enlist[`a:/:/]";fail[]];
+    if[not longstring[(`a;`b;`$"hello world";`;`$"a/:/";`$"a:/:/")]~"(`a;`b;`$\"hello world\";`;`$\"a/:/\";`a:/:/)";fail[]];
+    if[not longstring[(`$"hello world")xcol([]a:1 2)]~"flip[enlist[`$\"hello world\"]!enlist[1 2j]]";fail[]];
+    if[not longstring[(`$"hello world")xcol([]a:1 2)!([]b:1 2)]~"flip[enlist[`$\"hello world\"]!enlist[1 2j]]!([]b:1 2j)";fail[]];
+
+    orig41dict:.qutils.longstring41dict;
+    .qutils.longstring41dict:1b;
+    if[not longstring[`a`b`c!1 2 3]~"([a:1j;b:2j;c:3j])";fail[]];
+    if[not longstring[`a`b`count!1 2 3]~"`a`b`count!1 2 3j";fail[]];
+    if[not longstring[`a`b`:c!1 2 3]~"`a`b`:c!1 2 3j";fail[]];
+    if[not longstring[(`a;`b;`$"hello world")!1 2 3]~"(`a;`b;`$\"hello world\")!1 2 3j";fail[]];
+    if[not longstring[1 2 3!`a`b`c]~"1 2 3j!`a`b`c";fail[]];
+    .qutils.longstring41dict:0b;
+    if[not longstring[`a`b`c!1 2 3]~"`a`b`c!1 2 3j";fail[]];
+    .qutils.longstring41dict:orig41dict;
     };
 //longstringTest[];
