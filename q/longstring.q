@@ -16,6 +16,7 @@ longstring:{
         if[first[s] in "_0123456789";:0b];
         1b};
     if[t in 100 101 102 105h; :string[x]];
+    if[t within 106 111h; :.z.s[first value x],("'";"/";"\\";"':";"/:";"\\:")t-106];
     if[t in 0 77h; :$[1=count x;"enlist[",.z.s[first x],"]";"(",(";"sv .z.s each x),")"]];
     if[t=-1h; :string[x],"b"];
     if[t=-2h; $[null x;:"0Ng"; :"\"G\"$\"",string[x],"\""]];
@@ -68,7 +69,10 @@ longstring:{
         ];
         :.z.s[key x],"!",.z.s[value x]];
     if[t=103h; :string x];
-    if[t=104h; v:value x; :.z.s[first v],"[",(";"sv .z.s each 1_v),"]"];
+    if[t=104h; v:value x;
+        holes:exec i from ([]p:1_v) where 101=type each p,0xff=last each -8!/:p;
+        :.z.s[first v],"[",(";"sv @[.z.s each 1_v;holes;0#]),"]";
+    ];
     '"nyi type ",string t};
 
 longstringTest:{
@@ -132,6 +136,13 @@ longstringTest:{
     if[not longstring[(`a;`b;`$"hello world";`;`$"a/:/";`$"a:/:/")]~"(`a;`b;`$\"hello world\";`;`$\"a/:/\";`a:/:/)";fail[]];
     if[not longstring[(`$"hello world")xcol([]a:1 2)]~"flip[enlist[`$\"hello world\"]!enlist[1 2j]]";fail[]];
     if[not longstring[(`$"hello world")xcol([]a:1 2)!([]b:1 2)]~"flip[enlist[`$\"hello world\"]!enlist[1 2j]]!([]b:1 2j)";fail[]];
+    if[not longstring[{}']~"{}'";fail[]];
+    if[not longstring[{}/]~"{}/";fail[]];
+    if[not longstring[{}\]~"{}\\";fail[]];
+    if[not longstring[{}':]~"{}':";fail[]];
+    if[not longstring[{}/:]~"{}/:";fail[]];
+    if[not longstring[{}\:]~"{}\\:";fail[]];
+    if[not longstring[{[a;b;c;d]}[1;;2;::]]~"{[a;b;c;d]}[1j;;2j;::]";fail[]];
 
     orig41dict:.qutils.longstring41dict;
     .qutils.longstring41dict:1b;
